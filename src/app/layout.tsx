@@ -1,14 +1,4 @@
-import { Analytics } from "@vercel/analytics/next";
-import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
-import { TrackingListener } from "@/components/analytics/TrackingListener";
-import { Footer } from "@/components/site/Footer";
-import { MotionProvider } from "@/components/MotionProvider";
-import { Nav } from "@/components/site/Nav";
-import { navGroups } from "@/lib/navigation";
-import { baseMetadata } from "@/lib/utils";
-import type { Viewport } from "next";
 import { Inter } from "next/font/google";
-import StructuredData from "@/components/StructuredData";
 import "./globals.css";
 
 // D3: Inter for both body and display. The italic axis is mandatory — every
@@ -21,44 +11,37 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-// Site-wide metadata defaults. Every real page overrides these via
-// constructMetadata(); the root layout deliberately carries NO canonical.
-export const metadata = baseMetadata();
-
-export const viewport: Viewport = {
-  themeColor: "#2c2825",
-};
-
-export default async function RootLayout({
+/**
+ * Minimal root layout.
+ *
+ * With i18n (next-intl), the `<html lang>` and `<body>` chrome live here at the
+ * root so that non-locale route handlers (api/, sitemap.ts, robots.ts) still
+ * have a valid document shell. The active `lang` is set dynamically from the
+ * `[locale]` segment via the `setRequestLocale` flow in
+ * `src/app/[locale]/layout.tsx`.
+ *
+ * All visible chrome (Nav, Footer, analytics providers, StructuredData,
+ * MotionProvider, skip-link) has moved to the locale layout so it can be
+ * rendered per-locale.
+ *
+ * Note: `lang="en"` is the default-locale fallback. The locale layout overrides
+ * it at runtime by setting `document.documentElement.lang` via a small client
+ * effect (see LocaleHtmlLang below).
+ */
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html
-      lang="nb"
+      lang="en"
       className={inter.variable}
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <head>
-        <StructuredData type="organization" />
-        <StructuredData type="realEstateAgent" />
-        <StructuredData type="website" />
-      </head>
       <body className="min-h-screen antialiased selection:bg-light-blue selection:text-warm-grey">
-        <GoogleTagManager />
-        <TrackingListener />
-        <Nav groups={navGroups} />
-        <a href="#hovedinnhold" className="skip-link">
-          Hopp til innhold
-        </a>
-        <main id="hovedinnhold" tabIndex={-1}>
-          <MotionProvider>{children}</MotionProvider>
-        </main>
-        <Footer />
-        {/* Only on real Vercel deploys — locally/CI the insights script 404s
-            and trips the zero-console-error test assertions. */}
-        {process.env.VERCEL ? <Analytics /> : null}
+        {children}
       </body>
     </html>
   );

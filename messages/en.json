@@ -1,0 +1,34 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "services": "Services",
+    "marketInsights": "Market insights",
+    "tools": "Tools",
+    "about": "About",
+    "contact": "Contact",
+    "blog": "Blog",
+    "help": "Help center",
+    "properties": "Properties",
+    "brokers": "Brokers"
+  },
+  "Site": {
+    "description": "Your local commercial real estate broker in Northern Norway."
+  },
+  "Common": {
+    "skipToContent": "Skip to content",
+    "close": "Close",
+    "readMore": "Read more",
+    "getInTouch": "Get in touch",
+    "send": "Send",
+    "noResults": "No results",
+    "showMore": "Show more"
+  },
+  "HomePage": {
+    "title": "Advanti Estate",
+    "subtitle": "Commercial real estate in Northern Norway"
+  },
+  "Metadata": {
+    "homeTitle": "Commercial Real Estate Broker Northern Norway | Advanti Estate",
+    "homeDescription": "Your local expert in the sale and valuation of commercial real estate."
+  }
+}

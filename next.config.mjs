@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 import { withContentCollections } from "@content-collections/next";
 import createMDX from "@next/mdx";
+import createNextIntlPlugin from "next-intl/plugin";
+
+// next-intl: point the plugin at our server-side request config.
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -179,5 +183,6 @@ const withMDX = createMDX({
   // Add markdown plugins here, as desired
 });
 
-// Merge MDX config with Next.js config and Content Collections
-export default withContentCollections(withMDX(nextConfig));
+// Merge MDX config, next-intl, and Content Collections.
+// Order: next-intl wraps first (outermost), then content-collections, then MDX.
+export default withContentCollections(withMDX(withNextIntl(nextConfig)));

@@ -1,0 +1,34 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "services": "Diensten",
+    "marketInsights": "Marktinzicht",
+    "tools": "Tools",
+    "about": "Over ons",
+    "contact": "Contact",
+    "blog": "Blog",
+    "help": "Hulpcentrum",
+    "properties": "Vastgoed",
+    "brokers": "Makelaars"
+  },
+  "Site": {
+    "description": "Uw lokale commercieel vastgoedmakelaar in Noord-Noorwegen."
+  },
+  "Common": {
+    "skipToContent": "Naar inhoud",
+    "close": "Sluiten",
+    "readMore": "Lees meer",
+    "getInTouch": "Neem contact op",
+    "send": "Versturen",
+    "noResults": "Geen resultaten",
+    "showMore": "Meer tonen"
+  },
+  "HomePage": {
+    "title": "Advanti Estate",
+    "subtitle": "Commercieel vastgoed in Noord-Noorwegen"
+  },
+  "Metadata": {
+    "homeTitle": "Commercieel vastgoedmakelaar Noord-Noorwegen | Advanti Estate",
+    "homeDescription": "Uw lokale expert in verkoop en taxatie van commercieel vastgoed."
+  }
+}

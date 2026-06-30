@@ -145,3 +145,68 @@ Path alias: `@/*` → `src/*`. Content collections alias: `content-collections`
 - Don't add dark mode classes — light only.
 - Don't bypass `tsc --noEmit` — the build enforces it (see TODO 4 in
   `TODOS.md`).
+- Don't hardcode Norwegian (or any language) strings in new components — use
+  `useTranslations` / `getTranslations` from next-intl (see i18n section below).
+- Don't create pages outside `src/app/[locale]/` — all user-facing routes live
+  under the `[locale]` segment. Only `api/`, `actions/`, `sitemap.ts`,
+  `robots.ts`, `llms.txt/`, and static assets stay at `src/app/` root.
+
+## i18n (internationalization)
+
+This fork adds multi-language support via **next-intl** (v4). The site is
+being translated from Norwegian (bokmål) to **English** (default) and **Dutch**.
+
+### Locales & routing
+
+| Locale | URL prefix | Status |
+|--------|-----------|--------|
+| `en` | `/` (no prefix, default) | Skeleton — content still NO |
+| `nl` | `/nl/...` | Skeleton — content still NO |
+| `no` | `/no/...` | Original content |
+
+Routing uses `localePrefix: "as-needed"` — the default locale (`en`) is served
+at `/` without a prefix; `nl` and `no` get a prefix. All page routes live under
+`src/app/[locale]/`.
+
+### Key i18n files
+
+| File | Purpose |
+|------|---------|
+| `src/i18n/routing.ts` | Locale definitions, routing config, navigation helpers (`Link`, `useRouter`, `usePathname`) |
+| `src/i18n/request.ts` | Server-side request config — loads `messages/{locale}.json` |
+| `src/proxy.ts` | Next.js 16 locale proxy (replaces `middleware.ts`) |
+| `messages/en.json` | English UI strings (namespaced: `Navigation`, `Site`, `Common`, `HomePage`, `Metadata`) |
+| `messages/nl.json` | Dutch UI strings |
+| `messages/no.json` | Norwegian UI strings |
+| `src/app/layout.tsx` | Minimal root layout (`<html>` + `<body>` + font + globals.css) |
+| `src/app/[locale]/layout.tsx` | Locale layout — Nav, Footer, providers, `setRequestLocale`, `NextIntlClientProvider` |
+
+### Adding new UI strings
+
+1. Add the key to **all three** message files (`en.json`, `nl.json`, `no.json`)
+   under the appropriate namespace.
+2. In server components: `const t = await getTranslations("Namespace"); t("key")`
+3. In client components: `const t = useTranslations("Namespace"); t("key")`
+4. Use `@/i18n/routing`'s `Link`, `useRouter`, `usePathname` instead of
+   `next/link` and `next/navigation` for locale-aware navigation.
+
+### Adding new routes
+
+All new pages go under `src/app/[locale]/<route>/page.tsx`. The `[locale]`
+segment is handled automatically by next-intl. Register the route in
+`src/lib/navigation.ts` as usual.
+
+### Migration status
+
+- **Fase 1 (infra):** complete — next-intl installed, `[locale]` routing, proxy,
+  messages skeleton, layout split. Build passes.
+- **Fase 2 (central UI keys):** pending — `navigation.ts`, `siteConfig.ts`,
+  `Nav.tsx`, `Footer.tsx`, `utils.ts` → `useTranslations`/`getTranslations`.
+- **Fase 3 (rest of UI):** pending — ~160 files with ~762 hardcoded NO strings.
+- **Fase 4 (content-collections):** pending — add `locale` field, split MDX
+  into `{no,nl,en}/` subdirs.
+- **Fase 5 (MDX translation):** pending — ~147 files, ~128k words.
+- **Fase 6 (SEO):** pending — hreflang, per-locale sitemap, metadata alternates.
+
+See `MERGE_NOTES.md` for upstream (Codehagen) update tracking and conflict
+zones.

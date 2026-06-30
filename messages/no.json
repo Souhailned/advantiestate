@@ -1,0 +1,34 @@
+{
+  "Navigation": {
+    "home": "Hjem",
+    "services": "Tjenester",
+    "marketInsights": "Markedsinnsikt",
+    "tools": "Verktøy",
+    "about": "Om oss",
+    "contact": "Kontakt",
+    "blog": "Blogg",
+    "help": "Hjelpesenter",
+    "properties": "Eiendommer",
+    "brokers": "Næringsmegler"
+  },
+  "Site": {
+    "description": "Din lokale næringsmegler i Nord-Norge."
+  },
+  "Common": {
+    "skipToContent": "Hopp til innhold",
+    "close": "Lukk",
+    "readMore": "Les mer",
+    "getInTouch": "Ta kontakt",
+    "send": "Send inn",
+    "noResults": "Ingen resultater",
+    "showMore": "Vis flere"
+  },
+  "HomePage": {
+    "title": "Advanti Estate",
+    "subtitle": "Næringseiendom i Nord-Norge"
+  },
+  "Metadata": {
+    "homeTitle": "Næringsmegler Nord-Norge | Advanti Estate",
+    "homeDescription": "Din lokale ekspert på salg og verdivurdering av næringseiendom."
+  }
+}
