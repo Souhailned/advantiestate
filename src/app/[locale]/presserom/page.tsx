@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Metadata } from "next"
 
 import { constructMetadata } from "@/lib/utils"
 import { SubHero } from "@/components/site/SubHero"
@@ -16,12 +17,14 @@ import { PressevarselForm } from "./PressevarselForm"
 const PRESS_BUCKET =
   "https://kukzjreikqbgbolxvqaj.supabase.co/storage/v1/object/public/press"
 
-export const metadata = constructMetadata({
-  path: "/presserom",
-  title: "Presserom — markedstall for media | Advanti Estate",
-  description:
-    "Markedstall for næringseiendom i Nord-Norge, fritt til bruk for media med kildehenvisning til Advanti Estate. Yield, leie og ledighet per by, sitat og pressekontakt.",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/presserom",
+    title: "Presserom — markedstall for media | Advanti Estate",
+    description:
+      "Markedstall for næringseiendom i Nord-Norge, fritt til bruk for media med kildehenvisning til Advanti Estate. Yield, leie og ledighet per by, sitat og pressekontakt.",
+  })
+}
 
 // T13: Eier fyller på etter hvert som omtaler publiseres.
 // Seksjonen «Sett i media» er skjult så lenge denne listen er tom.

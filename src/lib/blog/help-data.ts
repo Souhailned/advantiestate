@@ -20,22 +20,35 @@ export type HelpCategorySlug =
  * Canonical category order + labels, mirrored from HELP_CATEGORIES in
  * content.tsx (minus the JSX icons). Drives the library chips, the article
  * category nav, and the deterministic article ordering for prev/next.
+ *
+ * `titleKey` holds a next-intl message key (e.g. "HelpCategories.overview")
+ * rather than a hardcoded display string — callers resolve it via
+ * `t(entry.titleKey)` (server: `getTranslations`, client: `useTranslations`).
  */
-export const HELP_CATEGORY_META: { slug: HelpCategorySlug; title: string }[] = [
-  { slug: "overview", title: "Om Advanti" },
-  { slug: "getting-started", title: "Kom i gang" },
-  { slug: "terms", title: "Begreper" },
-  { slug: "for-investors", title: "For Investorer" },
-  { slug: "analysis", title: "Markedsanalyse" },
-  { slug: "valuation", title: "Verdivurdering" },
+export const HELP_CATEGORY_META: { slug: HelpCategorySlug; titleKey: string }[] = [
+  { slug: "overview", titleKey: "HelpCategories.overview" },
+  { slug: "getting-started", titleKey: "HelpCategories.gettingStarted" },
+  { slug: "terms", titleKey: "HelpCategories.terms" },
+  { slug: "for-investors", titleKey: "HelpCategories.forInvestors" },
+  { slug: "analysis", titleKey: "HelpCategories.analysis" },
+  { slug: "valuation", titleKey: "HelpCategories.valuation" },
 ]
 
 const CATEGORY_INDEX: Record<string, number> = Object.fromEntries(
   HELP_CATEGORY_META.map((c, i) => [c.slug, i]),
 )
 
-export function helpCategoryTitle(slug?: string): string {
-  return HELP_CATEGORY_META.find((c) => c.slug === slug)?.title ?? "Artikkel"
+/**
+ * Resolves a category slug to its localized display title via a translator
+ * function `t` (e.g. `getTranslations()` or `useTranslations()`). Falls back
+ * to a neutral label for unknown/undefined slugs.
+ */
+export function helpCategoryTitle(
+  slug: string | undefined,
+  t: (key: string) => string,
+): string {
+  const entry = HELP_CATEGORY_META.find((c) => c.slug === slug)
+  return entry ? t(entry.titleKey) : "Artikkel"
 }
 
 /**

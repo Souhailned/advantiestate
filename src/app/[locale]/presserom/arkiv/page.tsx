@@ -1,16 +1,19 @@
 import Link from "next/link"
+import { Metadata } from "next"
 
 import { constructMetadata } from "@/lib/utils"
 import { SubHero } from "@/components/site/SubHero"
 import { BreadcrumbStructuredData } from "@/components/StructuredData"
 import { RELEASES } from "@/components/markedsinnsikt/marketReleases"
 
-export const metadata = constructMetadata({
-  path: "/presserom/arkiv",
-  title: "Kvartalsarkiv — markedstall | Advanti Estate",
-  description:
-    "Arkiv over alle Advanti Estates kvartalsutgivelser med markedstall for næringseiendom i Nord-Norge.",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/presserom/arkiv",
+    title: "Kvartalsarkiv — markedstall | Advanti Estate",
+    description:
+      "Arkiv over alle Advanti Estates kvartalsutgivelser med markedstall for næringseiendom i Nord-Norge.",
+  })
+}
 
 export default function ArkivIndexPage() {
   return (

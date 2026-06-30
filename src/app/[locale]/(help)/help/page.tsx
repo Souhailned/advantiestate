@@ -1,5 +1,7 @@
 import { allHelpPosts } from "content-collections"
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
+import { Metadata } from "next"
 
 import { HelpFaq } from "@/components/help/HelpFaq"
 import { HelpLibrary, type LibraryItem } from "@/components/help/HelpLibrary"
@@ -17,12 +19,14 @@ import {
 import { calculateReadingTime } from "@/lib/blog/utils"
 import { constructMetadata } from "@/lib/utils"
 
-export const metadata = constructMetadata({
-  path: "/help",
-  title: "Kunnskapssenter – Advanti",
-  description:
-    "Et åpent kunnskapssenter om næringseiendom i Nord-Norge: yield, verdivurdering, DCF, leiekontrakter og markedet — forklart av rådgivere som gjør det til daglig.",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/help",
+    title: "Kunnskapssenter – Advanti",
+    description:
+      "Et åpent kunnskapssenter om næringseiendom i Nord-Norge: yield, verdivurdering, DCF, leiekontrakter og markedet — forklart av rådgivere som gjør det til daglig.",
+  })
+}
 
 const MONTHS_SHORT = [
   "jan", "feb", "mar", "apr", "mai", "jun",
@@ -35,7 +39,8 @@ function shortDate(date: string) {
   return `${d.getDate()}. ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`
 }
 
-export default function HelpCenter() {
+export default async function HelpCenter() {
+  const t = await getTranslations()
   const popularArticles = getPopularArticles()
 
   // Plain serialisable DTOs for the client components (the client/server
@@ -44,14 +49,14 @@ export default function HelpCenter() {
     slug: post.slug ?? "",
     title: post.title,
     summary: post.summary,
-    category: helpCategoryTitle(post.categories[0]),
+    category: helpCategoryTitle(post.categories[0], t),
     readingTime: post.mdx ? calculateReadingTime(post.mdx) : null,
   }))
 
   const popularDto = popularArticles.map((post) => ({
     slug: post.slug ?? "",
     title: post.title,
-    category: helpCategoryTitle(post.categories[0]),
+    category: helpCategoryTitle(post.categories[0], t),
   }))
 
   const libraryItems: LibraryItem[] = allHelpPosts.map((post) => {
@@ -61,7 +66,7 @@ export default function HelpCenter() {
       slug,
       title: post.title,
       summary: post.summary,
-      category: helpCategoryTitle(post.categories[0]),
+      category: helpCategoryTitle(post.categories[0], t),
       categorySlug: post.categories[0],
       author: helpAuthorName(post.author),
       dateLabel: shortDate(post.updatedAt),
@@ -103,8 +108,8 @@ export default function HelpCenter() {
         return Date.parse(b.updated) - Date.parse(a.updated)
       })
       .slice(0, 3)
-      .map((t) => ({ slug: t.slug, title: t.title }))
-    return { slug: c.slug, title: c.title, count: inCat.length, top }
+      .map((a) => ({ slug: a.slug, title: a.title }))
+    return { slug: c.slug, title: t(c.titleKey), count: inCat.length, top }
   })
 
   return (

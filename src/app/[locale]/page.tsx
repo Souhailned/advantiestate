@@ -1,16 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { Faq } from "@/components/site/Faq";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  path: "/",
-  title: "Næringsmegler Nord-Norge | Advanti Estate",
-  description:
-    "Din lokale ekspert på salg og verdivurdering av næringseiendom i Nord-Norge. Vi hjelper deg å oppnå best mulig pris og presise verdivurderinger.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/",
+    title: "Næringsmegler Nord-Norge | Advanti Estate",
+    description:
+      "Din lokale ekspert på salg og verdivurdering av næringseiendom i Nord-Norge. Vi hjelper deg å oppnå best mulig pris og presise verdivurderinger.",
+  });
+}
 
 const italicMuted = {
   fontStyle: "italic",

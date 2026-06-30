@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { footerColumns } from "@/lib/navigation";
 import { getCities } from "@/lib/navigationServer";
 import { FooterCityLinks } from "./FooterCityLinks";
 
 /** Shared site footer with the large editorial wordmark. */
 export async function Footer() {
+  const t = await getTranslations();
   const cities = getCities();
   const tjenester = footerColumns.tjenester;
   const advanti = footerColumns.advanti;
@@ -23,63 +25,61 @@ export async function Footer() {
               <span className="sub">Estate</span>
             </Link>
             <p>
-              Advanti Estate er din lokale ekspert på næringseiendom i
-              Nord-Norge. Vi leverer verdivurdering, transaksjonsrådgivning,
-              utleie og markedsanalyse — basert på data og dyp lokal kunnskap.
+              {t("Footer.brandDescription")}
             </p>
           </div>
 
           <div className="footer-col">
-            <h4>Tjenester</h4>
+            <h4>{t("Footer.colTjenester")}</h4>
             <ul>
               {tjenester.map((l) => (
                 <li key={l.path}>
-                  <Link prefetch={false} href={l.path}>{l.label}</Link>
+                  <Link prefetch={false} href={l.path}>{t(l.label)}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="footer-col">
-            <h4>Advanti</h4>
+            <h4>{t("Footer.colAdvanti")}</h4>
             <ul>
               {advanti.map((l) => (
                 <li key={l.path}>
-                  <Link prefetch={false} href={l.path}>{l.label}</Link>
+                  <Link prefetch={false} href={l.path}>{t(l.label)}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="footer-col">
-            <h4>Byer vi dekker</h4>
+            <h4>{t("Footer.colCities")}</h4>
             <FooterCityLinks cities={cities} />
           </div>
 
           <div className="footer-col">
-            <h4>Kontor</h4>
+            <h4>{t("Footer.colOffice")}</h4>
             <address className="addr">
-              Bodø — Dronningens gate 18
+              {t("Footer.officeBodo")}
               <br />
-              8006 Bodø
+              {t("Footer.officeBodoPostal")}
               <br />
               <br />
-              Alta — Markedsgata 3
+              {t("Footer.officeAlta")}
               <br />
-              9510 Alta
+              {t("Footer.officeAltaPostal")}
               <br />
-              Kunnskapsparken 4. etg
+              {t("Footer.officeAltaFloor")}
             </address>
           </div>
         </div>
 
         <div className="footer-bottom">
           <span>
-            {`© ${new Date().getFullYear()} Eiendomsmegler Nord AS · Org. nr. 927 102 234 MVA`}
+            {t("Footer.copyright", { year: new Date().getFullYear() })}
           </span>
           <span>
-            <Link prefetch={false} href="/privacy">Personvern</Link> ·{" "}
-            <Link prefetch={false} href="/terms">Vilkår</Link>
+            <Link prefetch={false} href="/privacy">{t("Footer.privacy")}</Link> ·{" "}
+            <Link prefetch={false} href="/terms">{t("Footer.terms")}</Link>
           </span>
         </div>
 

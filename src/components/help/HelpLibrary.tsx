@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
+import { useTranslations } from "next-intl"
 
 import { foldNo } from "@/lib/blog/help-data"
 
@@ -72,8 +73,9 @@ export function HelpLibrary({
   categories,
 }: {
   items: LibraryItem[]
-  categories: { slug: string; title: string }[]
+  categories: { slug: string; titleKey: string }[]
 }) {
+  const t = useTranslations()
   const [cat, setCat] = useState<string>("all")
   const [filter, setFilter] = useState("")
   const [sort, setSort] = useState<SortKey>("popular")
@@ -159,7 +161,7 @@ export function HelpLibrary({
               data-on={cat === c.slug ? "1" : undefined}
               onClick={() => setCat(c.slug)}
             >
-              {c.title} <span className="cn">{counts[c.slug] ?? 0}</span>
+              {t(c.titleKey)} <span className="cn">{counts[c.slug] ?? 0}</span>
             </button>
           ))}
         </div>
@@ -231,7 +233,7 @@ export function HelpLibrary({
           <p>
             Vi fant ingen artikler som matcher
             {q ? ` «${filter.trim()}»` : " filteret"}
-            {activeCat ? ` i ${activeCat.title}` : ""}. Prøv et bredere søk —
+            {activeCat ? ` i ${t(activeCat.titleKey)}` : ""}. Prøv et bredere søk —
             eller spør oss direkte.
           </p>
           <div className="hs-empty-actions">
@@ -254,7 +256,7 @@ export function HelpLibrary({
               borderBottom: "1px solid var(--warm-grey-75)",
             }}
           >
-            Se hele kategorien {activeCat.title} →
+            Se hele kategorien {t(activeCat.titleKey)} →
           </Link>
         </p>
       )}

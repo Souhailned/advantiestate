@@ -1,12 +1,15 @@
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/presentasjon",
-  noIndex: true, // internal sales deck — not for the organic index
-  title: "Advanti Estate — Presentasjon | Næringsmegling Nord-Norge",
-  description:
-    "Advanti Estate er din partner for kjøp, salg og utleie av næringseiendom i Nord-Norge.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/presentasjon",
+    noIndex: true, // internal sales deck — not for the organic index
+    title: "Advanti Estate — Presentasjon | Næringsmegling Nord-Norge",
+    description:
+      "Advanti Estate er din partner for kjøp, salg og utleie av næringseiendom i Nord-Norge.",
+  });
+}
 
 const slides = [
   {

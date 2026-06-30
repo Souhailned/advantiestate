@@ -32,25 +32,27 @@ export const EIENDOM_CITIES: { slug: string; label: string }[] = [
 export interface NavEntry {
   /** Absolute path or pattern (e.g. "/blog/[slug]"). */
   path: string;
+  /** i18n message key (e.g. "Navigation.home") — resolved by consumers via
+   *  next-intl's t(). Falls back to raw string if not a recognised key. */
   label: string;
   parent: string | null;
   inNav?: boolean;
   inFooter?: boolean;
   /** Nav dropdown group this entry belongs to. */
   navGroup?: GroupId;
-  /** Short muted description line — used in the Innsikt panel column. */
+  /** i18n message key for the description, resolved by consumers via t(). */
   description?: string;
 }
 
 export const REGISTRY: NavEntry[] = [
   // ── root ────────────────────────────────────────────────────────────────
-  { path: "/", label: "Hjem", parent: null },
+  { path: "/", label: "Navigation.home", parent: null },
 
   // ── tjenester group ─────────────────────────────────────────────────────
   // /tjenester is the parent (emphasized first link in the panel column).
   {
     path: "/tjenester",
-    label: "Tjenester",
+    label: "Navigation.services",
     parent: null,
     inNav: true,
     inFooter: true,
@@ -58,8 +60,8 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/tjenester/salg",
-    label: "Salg",
-    description: "Strukturert salgsprosess fra verdivurdering til oppgjør.",
+    label: "Navigation.servicesSalg",
+    description: "Navigation.servicesSalgDesc",
     parent: "/tjenester",
     inNav: true,
     inFooter: true,
@@ -67,8 +69,8 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/tjenester/verdivurdering",
-    label: "Verdivurdering",
-    description: "Dokumentert markedsverdi med DCF- og yield-analyse.",
+    label: "Navigation.servicesVerdivurdering",
+    description: "Navigation.servicesVerdivurderingDesc",
     parent: "/tjenester",
     inNav: true,
     inFooter: true,
@@ -76,8 +78,8 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/tjenester/transaksjoner",
-    label: "Transaksjonsrådgivning",
-    description: "Rådgivning gjennom due diligence og forhandling.",
+    label: "Navigation.servicesTransaksjoner",
+    description: "Navigation.servicesTransaksjonerDesc",
     parent: "/tjenester",
     inNav: true,
     inFooter: true,
@@ -85,8 +87,8 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/tjenester/utleie",
-    label: "Utleie",
-    description: "Utleie av kontor-, handels- og logistikkareal.",
+    label: "Navigation.servicesUtleie",
+    description: "Navigation.servicesUtleieDesc",
     parent: "/tjenester",
     inNav: true,
     inFooter: true,
@@ -95,8 +97,8 @@ export const REGISTRY: NavEntry[] = [
   // Label matches the page H1: "Markedsdata og rådgivning."
   {
     path: "/tjenester/radgivning",
-    label: "Markedsdata og rådgivning",
-    description: "Markedsdata og analyse som beslutningsgrunnlag.",
+    label: "Navigation.servicesRadgivning",
+    description: "Navigation.servicesRadgivningDesc",
     parent: "/tjenester",
     inNav: true,
     inFooter: true,
@@ -104,115 +106,115 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/tjenester/strategisk-radgivning",
-    label: "Strategisk rådgivning",
-    description: "Porteføljestrategi og langsiktig eierrådgivning.",
+    label: "Navigation.servicesStrategiskRadgivning",
+    description: "Navigation.servicesStrategiskRadgivningDesc",
     parent: "/tjenester",
     inNav: true,
     inFooter: true,
     navGroup: "tjenester",
   },
   // Dynamic service × city routes
-  { path: "/tjenester/verdivurdering/[by]", label: "Verdivurdering i din by", parent: "/tjenester/verdivurdering" },
-  { path: "/tjenester/salg/[by]", label: "Salg i din by", parent: "/tjenester/salg" },
-  { path: "/tjenester/utleie/[by]", label: "Utleie i din by", parent: "/tjenester/utleie" },
+  { path: "/tjenester/verdivurdering/[by]", label: "Navigation.servicesVerdivurderingBy", parent: "/tjenester/verdivurdering" },
+  { path: "/tjenester/salg/[by]", label: "Navigation.servicesSalgBy", parent: "/tjenester/salg" },
+  { path: "/tjenester/utleie/[by]", label: "Navigation.servicesUtleieBy", parent: "/tjenester/utleie" },
 
   // ── næringsmegler — shown inside the Tjenester panel ─────────────────────
   {
     path: "/naringsmegler",
-    label: "Næringsmegler i din by",
-    description: "Lokal megler i ti byer i Nord-Norge.",
+    label: "Navigation.naringsmegler",
+    description: "Navigation.naringsmeglerDesc",
     parent: null,
     inNav: true,
     inFooter: true,
     navGroup: "tjenester",
   },
-  { path: "/naringsmegler/[slug]", label: "Næringsmegler", parent: "/naringsmegler" },
+  { path: "/naringsmegler/[slug]", label: "Navigation.naringsmeglerSlug", parent: "/naringsmegler" },
 
   // ── eiendommer — plain top-level nav link ─────────────────────────────────
   {
     path: "/eiendommer",
-    label: "Eiendommer",
+    label: "Navigation.eiendommer",
     parent: null,
     inNav: true,
     inFooter: false,
   },
-  { path: "/eiendommer/[slug]", label: "Eiendom", parent: "/eiendommer" },
+  { path: "/eiendommer/[slug]", label: "Navigation.eiendommerSlug", parent: "/eiendommer" },
 
   // ── innsikt group ────────────────────────────────────────────────────────
   // First entry is the emphasized parent link; remaining entries carry
   // description lines shown in the panel.
   {
     path: "/markedsinnsikt",
-    label: "Markedsinnsikt",
+    label: "Navigation.markedsinnsikt",
     parent: null,
     inNav: true,
     inFooter: true,
     navGroup: "innsikt",
-    description: "Oversikt over næringseiendomsmarkedet i Nord-Norge.",
+    description: "Navigation.markedsinnsiktDesc",
   },
   {
     path: "/markedsinnsikt/kart",
-    label: "Markedskart",
+    label: "Navigation.markedsinnsiktKart",
     parent: "/markedsinnsikt",
     inNav: true,
     inFooter: true,
     navGroup: "innsikt",
-    description: "Prisnivåer og soner visualisert by for by.",
+    description: "Navigation.markedsinnsiktKartDesc",
   },
   {
     path: "/markedsrapport",
-    label: "Markedsrapport",
+    label: "Navigation.markedsrapport",
     parent: "/markedsinnsikt",
     inNav: true,
     inFooter: true,
     navGroup: "innsikt",
-    description: "Kvartalsvise tall: yield, leie og ledighet.",
+    description: "Navigation.markedsrapportDesc",
   },
   {
     path: "/verktoy",
-    label: "Verktøy og kalkulatorer",
+    label: "Navigation.verktoy",
     parent: "/markedsinnsikt",
     inNav: true,
     inFooter: true,
     navGroup: "innsikt",
-    description: "Kalkulatorer for yield, ROI og verdivurdering.",
+    description: "Navigation.verktoyDesc",
   },
   // Kunnskapssenter — promoted to a top-level nav item (own breadcrumb root),
   // no longer nested under the Innsikt panel.
   {
     path: "/help",
-    label: "Kunnskapssenter",
+    label: "Navigation.help",
     parent: null,
     inNav: true,
     inFooter: true,
-    description: "Guider og fagartikler om næringseiendom.",
+    description: "Navigation.helpDesc",
   },
   {
     path: "/blog",
-    label: "Artikler",
+    label: "Navigation.blog",
     parent: "/markedsinnsikt",
     inNav: true,
     inFooter: true,
     navGroup: "innsikt",
-    description: "Analyser, markedskommentarer og innsikt.",
+    description: "Navigation.blogDesc",
   },
   // Help sub-pages
-  { path: "/help/article/[slug]", label: "Hjelpeartikkel", parent: "/help" },
-  { path: "/help/category/[slug]", label: "Hjelp kategori", parent: "/help" },
+  { path: "/help/article/[slug]", label: "Navigation.helpArticleSlug", parent: "/help" },
+  { path: "/help/category/[slug]", label: "Navigation.helpCategorySlug", parent: "/help" },
   // Blog sub-pages
-  { path: "/blog/[slug]", label: "Blogginnlegg", parent: "/blog" },
-  { path: "/blog/category/[slug]", label: "Bloggkategori", parent: "/blog" },
+  { path: "/blog/[slug]", label: "Navigation.blogSlug", parent: "/blog" },
+  { path: "/blog/category/[slug]", label: "Navigation.blogCategorySlug", parent: "/blog" },
   // Verktøy sub-pages
-  { path: "/verktoy/naringskalkulator", label: "Næringskalkulator", parent: "/verktoy" },
-  { path: "/verktoy/yield-kalkulator", label: "Yield-kalkulator", parent: "/verktoy" },
-  { path: "/verktoy/roi-kalkulator", label: "ROI-kalkulator", parent: "/verktoy" },
-  { path: "/verktoy/pris-verdivurdering", label: "Prisvurderingskalkulator", parent: "/verktoy" },
-  { path: "/verktoy/boliglan-kalkulator", label: "Boliglånskalkulator", parent: "/verktoy" },
+  { path: "/verktoy/naringskalkulator", label: "Navigation.verktoyNaringskalkulator", parent: "/verktoy" },
+  { path: "/verktoy/yield-kalkulator", label: "Navigation.verktoyYieldKalkulator", parent: "/verktoy" },
+  { path: "/verktoy/roi-kalkulator", label: "Navigation.verktoyRoiKalkulator", parent: "/verktoy" },
+  { path: "/verktoy/pris-verdivurdering", label: "Navigation.verktoyPrisVerdivurdering", parent: "/verktoy" },
+  { path: "/verktoy/boliglan-kalkulator", label: "Navigation.verktoyBoliglanKalkulator", parent: "/verktoy" },
 
   // ── om oss group ─────────────────────────────────────────────────────────
   {
     path: "/om-oss",
-    label: "Om oss",
+    label: "Navigation.omOss",
     parent: null,
     inNav: true,
     inFooter: true,
@@ -220,25 +222,25 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/personer",
-    label: "Team",
+    label: "Navigation.personer",
     parent: "/om-oss",
     inNav: true,
     inFooter: true,
     navGroup: "om-oss",
   },
-  { path: "/personer/[slug]", label: "Rådgiver", parent: "/personer" },
+  { path: "/personer/[slug]", label: "Navigation.personerSlug", parent: "/personer" },
   {
     path: "/kunder",
-    label: "Utvalgte oppdrag",
+    label: "Navigation.kunder",
     parent: "/om-oss",
     inNav: true,
     inFooter: true,
     navGroup: "om-oss",
   },
-  { path: "/kunder/[slug]", label: "Oppdrag", parent: "/kunder" },
+  { path: "/kunder/[slug]", label: "Navigation.kunderSlug", parent: "/kunder" },
   {
     path: "/karriere",
-    label: "Karriere",
+    label: "Navigation.karriere",
     parent: "/om-oss",
     inNav: true,
     inFooter: true,
@@ -246,46 +248,46 @@ export const REGISTRY: NavEntry[] = [
   },
   {
     path: "/presserom",
-    label: "Presserom",
+    label: "Navigation.presserom",
     parent: "/om-oss",
     inNav: true,
     inFooter: true,
     navGroup: "om-oss",
   },
-  { path: "/presserom/arkiv", label: "Pressearkiv", parent: "/presserom" },
-  { path: "/presserom/arkiv/[kvartal]", label: "Kvartalsarkiv", parent: "/presserom/arkiv" },
+  { path: "/presserom/arkiv", label: "Navigation.presseromArkiv", parent: "/presserom" },
+  { path: "/presserom/arkiv/[kvartal]", label: "Navigation.presseromArkivKvartal", parent: "/presserom/arkiv" },
 
   // ── kontakt — plain top-level nav link ────────────────────────────────────
   {
     path: "/kontakt",
-    label: "Kontakt",
+    label: "Navigation.kontakt",
     parent: null,
     inNav: true,
     inFooter: true,
   },
 
   // ── portaler (gated — inNav: false, in footer for authenticated users) ────
-  { path: "/analyseportal", label: "Analyseportal", parent: null, inNav: false, inFooter: true },
-  { path: "/investorportal", label: "Investorportal", parent: null, inNav: false, inFooter: true },
+  { path: "/analyseportal", label: "Navigation.analyseportal", parent: null, inNav: false, inFooter: true },
+  { path: "/investorportal", label: "Navigation.investorportal", parent: null, inNav: false, inFooter: true },
 
   // ── legal ─────────────────────────────────────────────────────────────────
-  { path: "/privacy", label: "Personvern", parent: null, inNav: false, inFooter: false },
-  { path: "/terms", label: "Vilkår", parent: null, inNav: false, inFooter: false },
+  { path: "/privacy", label: "Navigation.privacy", parent: null, inNav: false, inFooter: false },
+  { path: "/terms", label: "Navigation.terms", parent: null, inNav: false, inFooter: false },
 
   // ── deliberately outside nav/footer (gated or landing pages) ─────────────
-  { path: "/presentasjon", label: "Presentasjon", parent: null, inNav: false, inFooter: false },
-  { path: "/verdivurdering", label: "Få verdivurdering", parent: null, inNav: false, inFooter: true },
+  { path: "/presentasjon", label: "Navigation.presentasjon", parent: null, inNav: false, inFooter: false },
+  { path: "/verdivurdering", label: "Navigation.verdivurderingLanding", parent: null, inNav: false, inFooter: true },
   // Indexable conversion surface — reached via sitemap + cross-links (SeOgsa),
   // not primary nav. Parent gives it a Tjenester breadcrumb trail.
-  { path: "/beslutningsgrunnlag", label: "Beslutningsgrunnlag", parent: "/tjenester", inNav: false, inFooter: false },
-  { path: "/landing/verdivurdering", label: "Verdivurdering landingsside", parent: null, inNav: false, inFooter: false },
-  { path: "/sjekkliste-verdivurdering", label: "Sjekkliste verdivurdering", parent: null, inNav: false, inFooter: false },
+  { path: "/beslutningsgrunnlag", label: "Navigation.beslutningsgrunnlag", parent: "/tjenester", inNav: false, inFooter: false },
+  { path: "/landing/verdivurdering", label: "Navigation.landingVerdivurdering", parent: null, inNav: false, inFooter: false },
+  { path: "/sjekkliste-verdivurdering", label: "Navigation.sjekklisteVerdivurdering", parent: null, inNav: false, inFooter: false },
   // Reached from the Verktøy hub; mandate-registration form is forthcoming.
-  { path: "/off-market-tilgang", label: "Off-market tilgang", parent: "/verktoy", inNav: false, inFooter: false },
+  { path: "/off-market-tilgang", label: "Navigation.offMarketTilgang", parent: "/verktoy", inNav: false, inFooter: false },
 
   // ── integrasjoner ─────────────────────────────────────────────────────────
-  { path: "/integrasjoner", label: "Integrasjoner", parent: null, inNav: false, inFooter: false },
-  { path: "/integrasjoner/[slug]", label: "Integrasjon", parent: "/integrasjoner" },
+  { path: "/integrasjoner", label: "Navigation.integrasjoner", parent: null, inNav: false, inFooter: false },
+  { path: "/integrasjoner/[slug]", label: "Navigation.integrasjonerSlug", parent: "/integrasjoner" },
 ];
 
 // ── helpers ──────────────────────────────────────────────────────────────────

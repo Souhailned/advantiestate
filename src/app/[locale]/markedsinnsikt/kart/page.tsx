@@ -3,13 +3,16 @@ import { LATEST_RELEASE } from "@/components/markedsinnsikt/marketReleases"
 import { CtaStrip } from "@/components/site/CtaStrip"
 import { SubHero } from "@/components/site/SubHero"
 import { constructMetadata } from "@/lib/utils"
+import { Metadata } from "next"
 
-export const metadata = constructMetadata({
-  path: "/markedsinnsikt/kart",
-  title: "Markedskart Nord-Norge — næringseiendom by for by | Advanti Estate",
-  description:
-    "Interaktivt markedskart for næringseiendom i Nord-Norge. Sammenlign yield, leie og ledighet by for by — Tromsø, Bodø, Alta, Narvik, Harstad og Mo i Rana — pluss indikative prissoner i Bodø.",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/markedsinnsikt/kart",
+    title: "Markedskart Nord-Norge — næringseiendom by for by | Advanti Estate",
+    description:
+      "Interaktivt markedskart for næringseiendom i Nord-Norge. Sammenlign yield, leie og ledighet by for by — Tromsø, Bodø, Alta, Narvik, Harstad og Mo i Rana — pluss indikative prissoner i Bodø.",
+  })
+}
 
 // Stamp derived from the release register — never hand-edited copy.
 // UTC getters: publishedAt is date-only ISO (UTC midnight); local-TZ getters

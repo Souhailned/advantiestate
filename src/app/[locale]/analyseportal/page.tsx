@@ -7,18 +7,21 @@ import { CtaStrip } from "@/components/site/CtaStrip"
 import { NewsletterSection } from "@/components/site/NewsletterSection"
 import { AnalyseportalShell } from "@/components/analyseportal/AnalyseportalShell"
 import { PortalSeoTables } from "@/components/analyseportal/PortalSeoTables"
+import { Metadata } from "next"
 import {
   PORTAL_KPIS,
   PORTAL_LATEST,
   NEXT_RELEASE_DATE,
 } from "@/components/markedsinnsikt/portalSeries"
 
-export const metadata = constructMetadata({
-  path: "/analyseportal",
-  title: "Analyseportal – markedsdata for næringseiendom | Advanti",
-  description:
-    "Interaktiv analyseportal for næringseiendom i Nord-Norge: prime yield, markedsleie, transaksjonsvolum, arealledighet, nybygg og makro — kvartal for kvartal, by for by. Last ned tallene som CSV.",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/analyseportal",
+    title: "Analyseportal – markedsdata for næringseiendom | Advanti",
+    description:
+      "Interaktiv analyseportal for næringseiendom i Nord-Norge: prime yield, markedsleie, transaksjonsvolum, arealledighet, nybygg og makro — kvartal for kvartal, by for by. Last ned tallene som CSV.",
+  })
+}
 
 // Quarter label → ISO interval, e.g. "Q4 2025" → "2025-10/2025-12".
 function quarterToIso(quarter: string): string {

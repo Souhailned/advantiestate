@@ -4,13 +4,16 @@ import { SubHero } from "@/components/site/SubHero"
 import { CtaStrip } from "@/components/site/CtaStrip"
 import { CITIES } from "@/components/markedsinnsikt/marketData"
 import { MarkedsrapportGate } from "./MarkedsrapportGate"
+import { Metadata } from "next"
 
-export const metadata = constructMetadata({
-  path: "/markedsrapport",
-  title: "Markedsrapport Q4 2025 — næringseiendom Nord-Norge | Advanti Estate",
-  description:
-    "Last ned Advanti sin kvartalsvise markedsrapport for næringseiendom i Nord-Norge. Yield, leiepriser, transaksjoner og kommentarer fra senior partner.",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/markedsrapport",
+    title: "Markedsrapport Q4 2025 — næringseiendom Nord-Norge | Advanti Estate",
+    description:
+      "Last ned Advanti sin kvartalsvise markedsrapport for næringseiendom i Nord-Norge. Yield, leiepriser, transaksjoner og kommentarer fra senior partner.",
+  })
+}
 
 // Report label shown in the email-gate copy. Bump each quarter. The report is
 // distributed by email at each issue (no immediate file download), so there is

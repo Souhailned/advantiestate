@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Metadata } from "next";
 
 import { constructMetadata } from "@/lib/utils";
 import { SubHero } from "@/components/site/SubHero";
@@ -9,12 +10,14 @@ import {
   type VerdivurderingPrefill,
 } from "@/components/forms/VerdivurderingIntakeForm";
 
-export const metadata = constructMetadata({
-  path: "/beslutningsgrunnlag",
-  title: "Beslutningsgrunnlag for næringseiendom | Advanti Estate",
-  description:
-    "Bør du selge, refinansiere, holde, leie ut eller reposisjonere? Be om et beslutningsgrunnlag: en kort, partner-vurdert vurdering av eiendommen din innen 48 timer.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/beslutningsgrunnlag",
+    title: "Beslutningsgrunnlag for næringseiendom | Advanti Estate",
+    description:
+      "Bør du selge, refinansiere, holde, leie ut eller reposisjonere? Be om et beslutningsgrunnlag: en kort, partner-vurdert vurdering av eiendommen din innen 48 timer.",
+  });
+}
 
 export default function BeslutningsgrunnlagPage() {
   // Reuses the verdivurdering intake form (same fields), but lands under its

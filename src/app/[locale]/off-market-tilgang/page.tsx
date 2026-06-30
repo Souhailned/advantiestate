@@ -1,13 +1,16 @@
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/off-market-tilgang",
-  title: "Off-market tilgang — næringseiendom på invitasjon | Advanti Estate",
-  description:
-    "Vi formidler næringseiendom i Nord-Norge som ikke annonseres åpent. Registrer kjøpsmandat, så vurderer vi hvilke konfidensielle oppdrag som passer — diskré formidling mellom kvalifiserte parter.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/off-market-tilgang",
+    title: "Off-market tilgang — næringseiendom på invitasjon | Advanti Estate",
+    description:
+      "Vi formidler næringseiendom i Nord-Norge som ikke annonseres åpent. Registrer kjøpsmandat, så vurderer vi hvilke konfidensielle oppdrag som passer — diskré formidling mellom kvalifiserte parter.",
+  });
+}
 
 const FEATURES = [
   {

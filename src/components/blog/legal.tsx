@@ -1,11 +1,15 @@
 import type { LegalPost } from "content-collections"
 
 import { formatDate } from "@/lib/utils"
+import { getLocale, getTranslations } from "next-intl/server"
 
 import MaxWidthWrapper from "./max-width-wrapper"
 import { MDX } from "./mdx"
 
-export default function LegalPage({ post }: { post?: LegalPost }) {
+export default async function LegalPage({ post }: { post?: LegalPost }) {
+  const locale = await getLocale()
+  const t = await getTranslations()
+
   if (!post) {
     return (
       <div className="text-muted-foreground">Juridisk innlegg ikke funnet</div>
@@ -23,7 +27,7 @@ export default function LegalPage({ post }: { post?: LegalPost }) {
         <MDX code={post.mdx} />
         <div className="mt-10 w-full border-t border-border pt-10 text-center">
           <p className="text-muted-foreground">
-            Sist oppdatert: {formatDate(post.updatedAt)}
+            Sist oppdatert: {formatDate(post.updatedAt, locale, t)}
           </p>
         </div>
       </MaxWidthWrapper>

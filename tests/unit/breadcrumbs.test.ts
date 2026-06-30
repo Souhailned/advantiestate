@@ -27,15 +27,16 @@ describe("buildCrumbs", () => {
     const crumbs = buildCrumbs("/tjenester/salg")
     expect(crumbs).not.toBeNull()
     expect(crumbs).toHaveLength(3)
-    expect(crumbs![0]).toMatchObject({ label: "Hjem", href: "/" })
-    expect(crumbs![1]).toMatchObject({ label: "Tjenester", href: "/tjenester" })
-    expect(crumbs![2]).toMatchObject({ label: "Salg", href: "/tjenester/salg" })
+    // Labels are now i18n message keys (resolved by the component at render time).
+    expect(crumbs![0]).toMatchObject({ label: "Navigation.home", href: "/" })
+    expect(crumbs![1]).toMatchObject({ label: "Navigation.services", href: "/tjenester" })
+    expect(crumbs![2]).toMatchObject({ label: "Navigation.servicesSalg", href: "/tjenester/salg" })
   })
 
   it("always starts with Hjem for top-level routes like /eiendommer", () => {
     const crumbs = buildCrumbs("/eiendommer")
     expect(crumbs).not.toBeNull()
-    expect(crumbs![0]).toMatchObject({ label: "Hjem", href: "/" })
+    expect(crumbs![0]).toMatchObject({ label: "Navigation.home", href: "/" })
     expect(crumbs![1].href).toBe("/eiendommer")
   })
 
@@ -46,7 +47,7 @@ describe("buildCrumbs", () => {
     expect(crumbs).not.toBeNull()
     // [Hjem, Næringsmegler i din by, Bodø]
     expect(crumbs).toHaveLength(3)
-    expect(crumbs![0]).toMatchObject({ label: "Hjem", href: "/" })
+    expect(crumbs![0]).toMatchObject({ label: "Navigation.home", href: "/" })
     // Middle entry: registry label for /naringsmegler
     expect(crumbs![1].href).toBe("/naringsmegler")
     // Leaf: real path, custom label

@@ -6,13 +6,16 @@ import { CtaStrip } from "@/components/site/CtaStrip"
 import { NewsletterSection } from "@/components/site/NewsletterSection"
 import { MarkedsinnsiktShell } from "@/components/markedsinnsikt/MarkedsinnsiktShell"
 import { MarketDataSummary } from "@/components/markedsinnsikt/MarketDataSummary"
+import { Metadata } from "next"
 
-export const metadata = constructMetadata({
-  path: "/markedsinnsikt",
-  title: "Markedsinnsikt for næringseiendom | Advanti Estate",
-  description:
-    "Få tilgang til omfattende markedsdata og analyser for næringseiendom. Utforsk sanntids markedstrender og yield-analyser for smarte investeringer..",
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/markedsinnsikt",
+    title: "Markedsinnsikt for næringseiendom | Advanti Estate",
+    description:
+      "Få tilgang til omfattende markedsdata og analyser for næringseiendom. Utforsk sanntids markedstrender og yield-analyser for smarte investeringer..",
+  })
+}
 
 export default function MarkedsinnsiktPage() {
   return (

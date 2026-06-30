@@ -1,17 +1,20 @@
 import { allPersonPosts } from "content-collections";
 import Link from "next/link";
+import { Metadata } from "next";
 
 import ContactUsForm from "@/components/ContactUsForm";
 import { OfficeMap } from "@/components/site/OfficeMap";
 import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  path: "/kontakt",
-  title: "Kontakt Advanti for Salg og Verdivurdering av Næringseiendom",
-  description:
-    "Trenger du hjelp med salg eller verdivurdering av næringseiendom i Nord-Norge? Kontakt Advanti for en uforpliktende samtale. Vi hjelper eiendomsbesittere med å oppnå best mulig resultat.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/kontakt",
+    title: "Kontakt Advanti for Salg og Verdivurdering av Næringseiendom",
+    description:
+      "Trenger du hjelp med salg eller verdivurdering av næringseiendom i Nord-Norge? Kontakt Advanti for en uforpliktende samtale. Vi hjelper eiendomsbesittere med å oppnå best mulig resultat.",
+  });
+}
 
 // Direkte kontaktpersoner. Navn, tittel, bilde, e-post og telefon hentes fra
 // people-samlingen (src/content/people) slik at kortene ikke kan drifte fra

@@ -2,13 +2,16 @@ import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { YieldCalculatorV2 } from "@/components/verktoy/YieldCalculatorV2";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/verktoy/yield-kalkulator",
-  title: "Yield-kalkulator | Brutto, netto og cash-on-cash | Advanti Estate",
-  description:
-    "Beregn brutto- og netto-yield for næringseiendom i Nord-Norge — og se hva belåning gjør med egenkapitalavkastningen (cash-on-cash). I sanntid, målt mot markedsnivået. Gratis, uten innlogging.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verktoy/yield-kalkulator",
+    title: "Yield-kalkulator | Brutto, netto og cash-on-cash | Advanti Estate",
+    description:
+      "Beregn brutto- og netto-yield for næringseiendom i Nord-Norge — og se hva belåning gjør med egenkapitalavkastningen (cash-on-cash). I sanntid, målt mot markedsnivået. Gratis, uten innlogging.",
+  });
+}
 
 export default function YieldKalkulatorPage() {
   return (

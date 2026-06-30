@@ -1,17 +1,20 @@
 import { allCustomersPosts } from "content-collections";
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  path: "/kunder",
-  title: "Våre Kunder og Prosjekter - Advanti",
-  description:
-    "Se eksempler på vellykkede transaksjoner og prosjekter Advanti har gjennomført for våre kunder innen næringseiendom i Nord-Norge.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/kunder",
+    title: "Våre Kunder og Prosjekter - Advanti",
+    description:
+      "Se eksempler på vellykkede transaksjoner og prosjekter Advanti har gjennomført for våre kunder innen næringseiendom i Nord-Norge.",
+  });
+}
 
 // Editorial presentation metadata for the oppdrag grid. Falls back gracefully
 // for any customer story not listed here — the card still renders from the

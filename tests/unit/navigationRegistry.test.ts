@@ -9,7 +9,10 @@ import {
 } from "@/lib/navigation"
 import type { NavEntry } from "@/lib/navigation"
 
-const APP_ROOT = path.resolve(__dirname, "../../src/app")
+// Pages now live under src/app/[locale]/ due to the i18n [locale] segment.
+// API routes and actions stay at src/app/ root but have no page.tsx, so
+// scanning [locale] gives the correct route set for registry coverage.
+const APP_ROOT = path.resolve(__dirname, "../../src/app/[locale]")
 
 // ── filesystem helpers ──────────────────────────────────────────────────────
 

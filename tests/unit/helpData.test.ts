@@ -10,6 +10,20 @@ import {
 
 type Post = { slug: string; title: string; categories: string[] }
 
+// Mock translator that mirrors the "no" (Norwegian) message values so the
+// helper's mapping logic can be tested without pulling in next-intl.
+const t = (key: string): string => {
+  const labels: Record<string, string> = {
+    "HelpCategories.overview": "Om Advanti",
+    "HelpCategories.gettingStarted": "Kom i gang",
+    "HelpCategories.terms": "Begreper",
+    "HelpCategories.forInvestors": "For Investorer",
+    "HelpCategories.analysis": "Markedsanalyse",
+    "HelpCategories.valuation": "Verdivurdering",
+  }
+  return labels[key] ?? key
+}
+
 // Deliberately unsorted: category order is overview → getting-started → terms →
 // for-investors → analysis → valuation (HELP_CATEGORY_META), then title (nb).
 const POSTS: Post[] = [
@@ -88,13 +102,13 @@ describe("helpNeighbours()", () => {
 
 describe("helpCategoryTitle()", () => {
   it("maps known slugs to their labels", () => {
-    expect(helpCategoryTitle("terms")).toBe("Begreper")
-    expect(helpCategoryTitle("valuation")).toBe("Verdivurdering")
+    expect(helpCategoryTitle("terms", t)).toBe("Begreper")
+    expect(helpCategoryTitle("valuation", t)).toBe("Verdivurdering")
   })
 
   it("falls back to a neutral label for unknown/undefined", () => {
-    expect(helpCategoryTitle("nope")).toBe("Artikkel")
-    expect(helpCategoryTitle(undefined)).toBe("Artikkel")
+    expect(helpCategoryTitle("nope", t)).toBe("Artikkel")
+    expect(helpCategoryTitle(undefined, t)).toBe("Artikkel")
   })
 
   it("HELP_CATEGORY_META covers all six help categories", () => {

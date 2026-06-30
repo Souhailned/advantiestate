@@ -2,13 +2,16 @@ import { Integration } from "@/components/blog/integrations";
 import { AnimatedGridPattern } from "@/components/ui/Animated-Grid-Background";
 import { FadeContainer, FadeSpan } from "@/components/ui/Fade";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/integrasjoner",
-  title: "Datakilder og Innsikt - Advanti",
-  description:
-    "Advanti bruker kvalitetssikrede datakilder som Kartverket og Brønnøysundregistrene for presis markedsanalyse, verdivurdering og strategisk rådgivning.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/integrasjoner",
+    title: "Datakilder og Innsikt - Advanti",
+    description:
+      "Advanti bruker kvalitetssikrede datakilder som Kartverket og Brønnøysundregistrene for presis markedsanalyse, verdivurdering og strategisk rådgivning.",
+  });
+}
 
 export default function Integrations() {
   return (

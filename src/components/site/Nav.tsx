@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   memo,
   useCallback,
@@ -71,28 +72,30 @@ const ICONS: Record<string, IconType> = {
 };
 
 // Short fallback descriptions for entries the registry doesn't describe (om-oss).
+// Values are i18n message keys resolved via useTranslations in the component.
 const FALLBACK_DESC: Record<string, string> = {
-  "/om-oss": "Hvem vi er og hvordan vi jobber.",
-  "/personer": "Rådgiverne i Advanti.",
-  "/kunder": "Utvalgte gjennomførte oppdrag.",
-  "/karriere": "Ledige roller hos oss.",
-  "/presserom": "Nyheter og presseressurser.",
+  "/om-oss": "NavPanel.fallbackOmOss",
+  "/personer": "NavPanel.fallbackPersoner",
+  "/kunder": "NavPanel.fallbackKunder",
+  "/karriere": "NavPanel.fallbackKarriere",
+  "/presserom": "NavPanel.fallbackPresserom",
 };
 
 // Which registry paths appear in each panel's icon grid, in order, plus the
 // "see all" link and the featured promo (a single anchor, distinct target so
 // it never duplicates a grid link).
+// Promo text fields (eyebrow, title, desc, cta) and seeAll label are i18n keys.
 const PANELS: Record<
   RegistryGroupId,
   {
     items: string[];
-    seeAll?: { href: string; label: string };
+    seeAll?: { href: string; labelKey: string };
     promo: {
       href: string;
-      eyebrow: string;
-      title: string;
-      desc: string;
-      cta: string;
+      eyebrowKey: string;
+      titleKey: string;
+      descKey: string;
+      ctaKey: string;
       img: string;
     };
   }
@@ -107,13 +110,13 @@ const PANELS: Record<
       "/tjenester/utleie",
       "/naringsmegler",
     ],
-    seeAll: { href: "/tjenester", label: "Se alle tjenester" },
+    seeAll: { href: "/tjenester", labelKey: "NavPanel.seeAllTjenester" },
     promo: {
       href: "/markedsinnsikt",
-      eyebrow: "Fremtidens eiendomsverdi",
-      title: "Innsikt som beveger eiendom.",
-      desc: "Vi kombinerer markedsdata, erfaring og teknologi for å gi deg bedre beslutningsgrunnlag.",
-      cta: "Les mer",
+      eyebrowKey: "NavPanel.promoTjenesterEyebrow",
+      titleKey: "NavPanel.promoTjenesterTitle",
+      descKey: "NavPanel.promoTjenesterDesc",
+      ctaKey: "NavPanel.promoTjenesterCta",
       img: "/building/auckland-glass-facade.jpg",
     },
   },
@@ -125,13 +128,13 @@ const PANELS: Record<
       "/verktoy",
       "/blog",
     ],
-    seeAll: { href: "/markedsinnsikt", label: "Gå til markedsinnsikt" },
+    seeAll: { href: "/markedsinnsikt", labelKey: "NavPanel.seeAllMarkedsinnsikt" },
     promo: {
       href: "/verktoy/pris-verdivurdering",
-      eyebrow: "Verktøy",
-      title: "Regn ut verdien.",
-      desc: "Bruk kalkulatoren for et raskt, yield-basert verdiestimat på eiendommen.",
-      cta: "Prøv kalkulatoren",
+      eyebrowKey: "NavPanel.promoInnsiktEyebrow",
+      titleKey: "NavPanel.promoInnsiktTitle",
+      descKey: "NavPanel.promoInnsiktDesc",
+      ctaKey: "NavPanel.promoInnsiktCta",
       img: "/building/la-skyscraper.jpg",
     },
   },
@@ -139,10 +142,10 @@ const PANELS: Record<
     items: ["/om-oss", "/personer", "/kunder", "/karriere", "/presserom"],
     promo: {
       href: "/kontakt",
-      eyebrow: "Snakk med oss",
-      title: "Lokal rådgiver, nasjonalt nettverk.",
-      desc: "Ta en uforpliktende prat med teamet om eiendommen din.",
-      cta: "Ta kontakt",
+      eyebrowKey: "NavPanel.promoOmOssEyebrow",
+      titleKey: "NavPanel.promoOmOssTitle",
+      descKey: "NavPanel.promoOmOssDesc",
+      ctaKey: "NavPanel.promoOmOssCta",
       img: "/building/munster-lvm-building.jpg",
     },
   },
@@ -166,6 +169,7 @@ const RegistryPanel = memo(function RegistryPanel({
   cleanPath: string;
   onClose: () => void;
 }) {
+  const t = useTranslations();
   const panel = PANELS[id];
   const byPath = (path: string) => groups[id].find((e) => e.path === path);
   return (
@@ -176,7 +180,7 @@ const RegistryPanel = memo(function RegistryPanel({
             const e = byPath(p);
             if (!e) return null;
             const Icon = ICONS[p];
-            const desc = e.description ?? FALLBACK_DESC[p];
+            const descKey = e.description ?? FALLBACK_DESC[p];
             return (
               <li key={p}>
                 <Link
@@ -189,8 +193,8 @@ const RegistryPanel = memo(function RegistryPanel({
                     {Icon ? <Icon aria-hidden /> : null}
                   </span>
                   <span className="nav-item-text">
-                    <span className="nav-item-title">{e.label}</span>
-                    {desc && <span className="nav-item-desc">{desc}</span>}
+                    <span className="nav-item-title">{t(e.label)}</span>
+                    {descKey && <span className="nav-item-desc">{t(descKey)}</span>}
                   </span>
                 </Link>
               </li>
@@ -205,7 +209,7 @@ const RegistryPanel = memo(function RegistryPanel({
             aria-current={cleanPath === panel.seeAll.href ? "page" : undefined}
             onClick={onClose}
           >
-            {panel.seeAll.label} →
+            {t(panel.seeAll.labelKey)} →
           </Link>
         )}
       </div>
@@ -217,11 +221,11 @@ const RegistryPanel = memo(function RegistryPanel({
         aria-current={isPathActive(cleanPath, panel.promo.href) ? "page" : undefined}
         onClick={onClose}
       >
-        <span className="nav-promo-eyebrow">{panel.promo.eyebrow}</span>
-        <span className="nav-promo-title">{panel.promo.title}</span>
-        <span className="nav-promo-desc">{panel.promo.desc}</span>
+        <span className="nav-promo-eyebrow">{t(panel.promo.eyebrowKey)}</span>
+        <span className="nav-promo-title">{t(panel.promo.titleKey)}</span>
+        <span className="nav-promo-desc">{t(panel.promo.descKey)}</span>
         <span className="nav-promo-cta">
-          {panel.promo.cta} <span aria-hidden>→</span>
+          {t(panel.promo.ctaKey)} <span aria-hidden>→</span>
         </span>
         <span
           className="nav-promo-img"
@@ -242,6 +246,7 @@ const EiendommerPanel = memo(function EiendommerPanel({
   cleanPath: string;
   onClose: () => void;
 }) {
+  const t = useTranslations();
   return (
     <div className="nav-panel-inner nav-panel-grid">
       <div className="nav-panel-main">
@@ -258,7 +263,7 @@ const EiendommerPanel = memo(function EiendommerPanel({
                 </span>
                 <span className="nav-item-text">
                   <span className="nav-item-title">{c.label}</span>
-                  <span className="nav-item-desc">Til salgs i {c.label}.</span>
+                  <span className="nav-item-desc">{t("NavPanel.eiendommerForSale", { city: c.label })}</span>
                 </span>
               </Link>
             </li>
@@ -271,7 +276,7 @@ const EiendommerPanel = memo(function EiendommerPanel({
           aria-current={cleanPath === "/eiendommer" ? "page" : undefined}
           onClick={onClose}
         >
-          Se alle eiendommer →
+          {t("NavPanel.eiendommerSeeAll")} →
         </Link>
       </div>
 
@@ -286,13 +291,13 @@ const EiendommerPanel = memo(function EiendommerPanel({
         }
         onClick={onClose}
       >
-        <span className="nav-promo-eyebrow">Selge eiendom?</span>
-        <span className="nav-promo-title">Vurderer du å selge?</span>
+        <span className="nav-promo-eyebrow">{t("NavPanel.eiendommerPromoEyebrow")}</span>
+        <span className="nav-promo-title">{t("NavPanel.eiendommerPromoTitle")}</span>
         <span className="nav-promo-desc">
-          Få en uforpliktende verdivurdering av næringseiendommen din.
+          {t("NavPanel.eiendommerPromoDesc")}
         </span>
         <span className="nav-promo-cta">
-          Få verdivurdering <span aria-hidden>→</span>
+          {t("NavPanel.eiendommerPromoCta")} <span aria-hidden>→</span>
         </span>
         <span
           className="nav-promo-img"

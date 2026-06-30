@@ -1,4 +1,4 @@
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
 import { TrackingListener } from "@/components/analytics/TrackingListener";
@@ -9,7 +9,7 @@ import { navGroups } from "@/lib/navigation";
 import { baseMetadata } from "@/lib/utils";
 import StructuredData from "@/components/StructuredData";
 import { NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
@@ -44,6 +44,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
   // Enable static rendering for this locale.
   setRequestLocale(locale);
 
+  const t = await getTranslations({ locale });
+
   // Sync <html lang> for non-default locales (default `en` is already set
   // in the root layout, but we set it unconditionally to stay correct).
   const langScript = `document.documentElement.lang=${JSON.stringify(locale)}`;
@@ -61,7 +63,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
         <TrackingListener />
         <Nav groups={navGroups} />
         <a href="#hovedinnhold" className="skip-link">
-          Hopp til innhold
+          {t("Common.skipToContent")}
         </a>
         <main id="hovedinnhold" tabIndex={-1}>
           <MotionProvider>{children}</MotionProvider>
@@ -77,8 +79,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
 
 // Site-wide metadata defaults. Every real page overrides these via
 // constructMetadata(); the locale layout deliberately carries NO canonical.
-// TODO(i18n): make title/description locale-aware in Fase 2.
-export const metadata = baseMetadata();
+// Now async — title/description/OG-alt/category are locale-aware via
+// next-intl messages (Metadata namespace).
+export async function generateMetadata(): Promise<Metadata> {
+  return baseMetadata();
+}
 
 export const viewport: Viewport = {
   themeColor: "#2c2825",

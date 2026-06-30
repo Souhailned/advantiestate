@@ -2,13 +2,16 @@ import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { NaringskalkulatorClient } from "@/components/verktoy/NaringskalkulatorClient";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/verktoy/naringskalkulator",
-  title: "Næringskalkulator | Verdiestimat på næringseiendom | Advanti Estate",
-  description:
-    "Regn ut et verdiestimat for næringseiendommen din på minuttet. Yield-basert anslag på markedsverdi for Nord-Norge — et godt utgangspunkt før en presis verdivurdering.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verktoy/naringskalkulator",
+    title: "Næringskalkulator | Verdiestimat på næringseiendom | Advanti Estate",
+    description:
+      "Regn ut et verdiestimat for næringseiendommen din på minuttet. Yield-basert anslag på markedsverdi for Nord-Norge — et godt utgangspunkt før en presis verdivurdering.",
+  });
+}
 
 export default function NaringskalkulatorPage() {
   return (

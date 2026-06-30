@@ -4,13 +4,16 @@ import { constructMetadata } from "@/lib/utils";
 import { allPersonPosts } from "content-collections";
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/personer",
-  title: "Vårt Team | Advanti Estate",
-  description:
-    "Møt teamet bak Advanti - erfarne næringsmeglere og rådgivere med dyp kompetanse innen næringseiendom i Nord-Norge.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/personer",
+    title: "Vårt Team | Advanti Estate",
+    description:
+      "Møt teamet bak Advanti - erfarne næringsmeglere og rådgivere med dyp kompetanse innen næringseiendom i Nord-Norge.",
+  });
+}
 
 // Per-person presentation metadata used by the editorial team-card design.
 // Falls back gracefully for any person not listed here.

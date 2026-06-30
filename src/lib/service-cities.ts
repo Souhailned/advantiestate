@@ -419,10 +419,10 @@ export function isServiceCity(citySlug: string): boolean {
 }
 
 /** Per-page metadata for a service × city route. Undefined for unknown combos. */
-export function buildServiceCityMetadata(
+export async function buildServiceCityMetadata(
   serviceSlug: string,
   citySlug: string,
-): Metadata | undefined {
+): Promise<Metadata | undefined> {
   const service = getServiceDef(serviceSlug);
   const location = getServiceCityLocation(citySlug);
   if (!service || !location) return undefined;

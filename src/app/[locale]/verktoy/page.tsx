@@ -1,16 +1,19 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Metadata } from "next";
 
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  path: "/verktoy",
-  title: "Verktøy for næringseiendom i Nord-Norge | Advanti Estate",
-  description:
-    "Advanti Estates verktøykasse for næringseiendom i Nord-Norge: næringskalkulator, yield-kalkulator, gratis verdivurdering, sjekklister, markedsinnsikt og analyseportal — fritt tilgjengelig, uten innlogging.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verktoy",
+    title: "Verktøy for næringseiendom i Nord-Norge | Advanti Estate",
+    description:
+      "Advanti Estates verktøykasse for næringseiendom i Nord-Norge: næringskalkulator, yield-kalkulator, gratis verdivurdering, sjekklister, markedsinnsikt og analyseportal — fritt tilgjengelig, uten innlogging.",
+  });
+}
 
 interface Tool {
   href: string;

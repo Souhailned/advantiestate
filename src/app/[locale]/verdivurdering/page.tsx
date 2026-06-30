@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
 import { constructMetadata } from "@/lib/utils";
 import { SubHero } from "@/components/site/SubHero";
@@ -9,15 +10,17 @@ import {
   type VerdivurderingPrefill,
 } from "@/components/forms/VerdivurderingIntakeForm";
 
-export const metadata = constructMetadata({
-  path: "/verdivurdering",
-  // Indexed conversion page. Its own canonical (/verdivurdering) and a distinct,
-  // intent-led title ("Få verdivurdering …") keep it from cannibalising the
-  // explainer at /tjenester/verdivurdering, which targets the informational query.
-  title: "Få verdivurdering av næringseiendom | Advanti Estate",
-  description:
-    "Be om en uforpliktende verdivurdering av næringseiendommen din. Svar fra en partner innen 24 timer, basert på vår transaksjonsdatabase med over 1 400 eiendommer i Nord-Norge.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verdivurdering",
+    // Indexed conversion page. Its own canonical (/verdivurdering) and a distinct,
+    // intent-led title ("Få verdivurdering …") keep it from cannibalising the
+    // explainer at /tjenester/verdivurdering, which targets the informational query.
+    title: "Få verdivurdering av næringseiendom | Advanti Estate",
+    description:
+      "Be om en uforpliktende verdivurdering av næringseiendommen din. Svar fra en partner innen 24 timer, basert på vår transaksjonsdatabase med over 1 400 eiendommer i Nord-Norge.",
+  });
+}
 
 const CHRISTER_PORTRAIT =
   "https://kukzjreikqbgbolxvqaj.supabase.co/storage/v1/object/public/press/christer-hagen-web.jpg";

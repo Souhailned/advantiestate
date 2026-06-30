@@ -1,19 +1,23 @@
 import { constructMetadata, formatDate } from "@/lib/utils";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SubHero } from "@/components/site/SubHero";
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { PhotoBand } from "@/components/site/PhotoBand";
 import { Faq, type FaqItem } from "@/components/site/Faq";
 import StructuredData from "@/components/StructuredData";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { Metadata } from "next";
 
 const LAST_UPDATED = "2026-05-22";
 
-export const metadata = constructMetadata({
-  path: "/tjenester/radgivning",
-  title: "Markedsdata og Rådgivning Næringseiendom | Advanti Estate",
-  description:
-    "Advanti leverer markedsdata og kvantitativ rådgivning for næringseiendom i Nord-Norge. Egne databaser, kvartalsvise markedsrapporter og datatilgang via API.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/tjenester/radgivning",
+    title: "Markedsdata og Rådgivning Næringseiendom | Advanti Estate",
+    description:
+      "Advanti leverer markedsdata og kvantitativ rådgivning for næringseiendom i Nord-Norge. Egne databaser, kvartalsvise markedsrapporter og datatilgang via API.",
+  });
+}
 
 const FAQ_ITEMS: FaqItem[] = [
   {
@@ -38,7 +42,9 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-export default function RadgivningPage() {
+export default async function RadgivningPage() {
+  const locale = await getLocale();
+  const t = await getTranslations();
   return (
     <>
       <StructuredData
@@ -337,7 +343,7 @@ export default function RadgivningPage() {
       />
       <div className="wrap pb-16 text-center">
         <p className="eyebrow no-rule">
-          Sist oppdatert · {formatDate(LAST_UPDATED)}
+          Sist oppdatert · {formatDate(LAST_UPDATED, locale, t)}
         </p>
       </div>
     </>

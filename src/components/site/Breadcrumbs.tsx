@@ -13,6 +13,7 @@
 
 import Link from "next/link";
 import { Fragment } from "react";
+import { getTranslations } from "next-intl/server";
 
 import { REGISTRY, parentChain, stripHash } from "@/lib/navigation";
 import { siteConfig } from "@/app/siteConfig";
@@ -82,14 +83,16 @@ interface BreadcrumbsProps {
  * styling automatically:
  *   <SubHero breadcrumbs={<Breadcrumbs path="..." leafLabel="..." />} .../>
  */
-export function Breadcrumbs({ path, leafLabel }: BreadcrumbsProps) {
+export async function Breadcrumbs({ path, leafLabel }: BreadcrumbsProps) {
+  const t = await getTranslations();
+
   // Separate check so we can warn on truly unknown paths (vs. single-level).
   const rawChain = parentChain(path);
 
   if (!rawChain) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(
-        `[Breadcrumbs] "${path}" er ikke registrert i navigation.ts — ingen brødsmulesti vises.`,
+        t("Breadcrumbs.unregisteredWarn", { path }),
       );
     }
     return null;
@@ -98,12 +101,22 @@ export function Breadcrumbs({ path, leafLabel }: BreadcrumbsProps) {
   const crumbs = buildCrumbs(path, leafLabel);
   if (!crumbs) return null; // single-level after prepend — silence, no warn
 
+  // Resolve i18n label keys to display text for both visible crumbs and JSON-LD.
+  const resolvedCrumbs = crumbs.map((c) => ({
+    ...c,
+    // Navigation labels are now message keys (e.g. "Navigation.home");
+    // resolve them. leafLabel is already a display string (not a key).
+    label: c === crumbs[crumbs.length - 1] && leafLabel
+      ? leafLabel
+      : t(c.label),
+  }));
+
   const baseUrl = siteConfig.url;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: crumbs.map((crumb, i) => ({
+    itemListElement: resolvedCrumbs.map((crumb, i) => ({
       "@type": "ListItem",
       position: i + 1,
       name: crumb.label,
@@ -114,8 +127,8 @@ export function Breadcrumbs({ path, leafLabel }: BreadcrumbsProps) {
   return (
     <>
       <JsonLd data={jsonLd} />
-      <nav aria-label="Brødsmulesti" className="crumb">
-        {crumbs.map((crumb, i) => {
+      <nav aria-label={t("Breadcrumbs.ariaLabel")} className="crumb">
+        {resolvedCrumbs.map((crumb, i) => {
           const isLast = i === crumbs.length - 1;
           return (
             <Fragment key={`${crumb.href}-${i}`}>

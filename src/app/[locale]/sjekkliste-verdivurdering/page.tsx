@@ -2,13 +2,16 @@ import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { SjekklisteVerdivurderingClient } from "@/components/verktoy/SjekklisteVerdivurderingClient";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/sjekkliste-verdivurdering",
-  title: "Sjekkliste for verdivurdering | Advanti Estate",
-  description:
-    "Hva trenger du for å verdivurdere næringseiendom? Kryss av for det du har, se hva som gjenstår. Interaktiv sjekkliste med må-ha- og bra-å-ha-dokumenter.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/sjekkliste-verdivurdering",
+    title: "Sjekkliste for verdivurdering | Advanti Estate",
+    description:
+      "Hva trenger du for å verdivurdere næringseiendom? Kryss av for det du har, se hva som gjenstår. Interaktiv sjekkliste med må-ha- og bra-å-ha-dokumenter.",
+  });
+}
 
 export default function SjekklisteVerdivurderingPage() {
   return (

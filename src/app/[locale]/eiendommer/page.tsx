@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Metadata } from "next";
 
 import { constructMetadata } from "@/lib/utils";
 import { siteConfig } from "@/app/siteConfig";
@@ -72,12 +73,14 @@ const OFF_MARKET = [
   },
 ];
 
-export const metadata = constructMetadata({
-  path: "/eiendommer",
-  title: "Eiendommer for salg i Nord-Norge | Advanti Estate",
-  description:
-    "Kuratert utvalg av næringseiendommer Advanti har til salgs i Nord-Norge — kontor, logistikk, handel og kombinasjonsbygg. Pluss off-market-oppdrag for kvalifiserte investorer.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/eiendommer",
+    title: "Eiendommer for salg i Nord-Norge | Advanti Estate",
+    description:
+      "Kuratert utvalg av næringseiendommer Advanti har til salgs i Nord-Norge — kontor, logistikk, handel og kombinasjonsbygg. Pluss off-market-oppdrag for kvalifiserte investorer.",
+  });
+}
 
 function formatInt(value: number) {
   return new Intl.NumberFormat("nb-NO").format(value);

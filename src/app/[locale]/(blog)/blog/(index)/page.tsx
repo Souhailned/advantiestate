@@ -1,6 +1,7 @@
 import { allBlogPosts } from "content-collections";
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
 import { NewsletterSection } from "@/components/site/NewsletterSection";
 import { SubHero } from "@/components/site/SubHero";
@@ -8,12 +9,14 @@ import { BLOG_CATEGORIES } from "@/lib/blog/content";
 import { calculateReadingTime } from "@/lib/blog/utils";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  path: "/blog",
-  title: "Artikler – Advanti Estate",
-  description:
-    "Siste nyheter, trends og innsikter fra Advanti Estate. Finn ekspertråd og veiledning for å forvalte og investere i næringseiendom i Nord-Norge.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/blog",
+    title: "Artikler – Advanti Estate",
+    description:
+      "Siste nyheter, trends og innsikter fra Advanti Estate. Finn ekspertråd og veiledning for å forvalte og investere i næringseiendom i Nord-Norge.",
+  });
+}
 
 const MONTHS_SHORT = [
   "JAN",

@@ -1,18 +1,21 @@
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { ValuationYieldCalculator } from "@/components/verktoy/ValuationYieldCalculator";
+import { Metadata } from "next";
 import {
   JourneyStepTracker,
   SjekklisteJourneyLink,
 } from "@/components/verktoy/JourneyStepTracker";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  path: "/verktoy/pris-verdivurdering",
-  title: "Prøv en verdivurdering selv | Estimert eiendomsverdi | Advanti Estate",
-  description:
-    "Prøv en verdivurdering selv: sett leie, driftskostnader og avkastningskrav (yield), så ser du estimert markedsverdi for næringseiendommen din i sanntid. Yield-metoden meglere bruker — et godt utgangspunkt før en presis verdivurdering i Nord-Norge.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verktoy/pris-verdivurdering",
+    title: "Prøv en verdivurdering selv | Estimert eiendomsverdi | Advanti Estate",
+    description:
+      "Prøv en verdivurdering selv: sett leie, driftskostnader og avkastningskrav (yield), så ser du estimert markedsverdi for næringseiendommen din i sanntid. Yield-metoden meglere bruker — et godt utgangspunkt før en presis verdivurdering i Nord-Norge.",
+  });
+}
 
 export default function PrisVerdiPage() {
   return (

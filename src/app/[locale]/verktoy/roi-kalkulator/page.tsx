@@ -1,13 +1,16 @@
 import { CalculatorLayout } from "@/components/verktoy/CalculatorLayout";
 import { ROICalculator } from "@/components/verktoy/ROICalculator";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/verktoy/roi-kalkulator",
-  title: "ROI Kalkulator | Advanti Estate",
-  description:
-    "Beregn avkastning på investering (ROI) for næringseiendom. Få oversikt over total avkastning inkludert leieinntekter og verdiøkning over tid.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verktoy/roi-kalkulator",
+    title: "ROI Kalkulator | Advanti Estate",
+    description:
+      "Beregn avkastning på investering (ROI) for næringseiendom. Få oversikt over total avkastning inkludert leieinntekter og verdiøkning over tid.",
+  });
+}
 
 export default function ROIKalkulatorPage() {
   return (

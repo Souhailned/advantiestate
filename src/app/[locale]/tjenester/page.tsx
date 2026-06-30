@@ -2,13 +2,16 @@ import { constructMetadata } from "@/lib/utils";
 import { SubHero } from "@/components/site/SubHero";
 import { CtaStrip } from "@/components/site/CtaStrip";
 import Link from "next/link";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/tjenester",
-  title: "Tjenester innen Næringseiendom i Nord-Norge | Advanti Estate",
-  description:
-    "Profesjonell salg og verdivurdering av næringseiendom i Nord-Norge. Vi tilbyr også utleie, transaksjoner og strategisk rådgivning for eiendomsbesittere.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/tjenester",
+    title: "Tjenester innen Næringseiendom i Nord-Norge | Advanti Estate",
+    description:
+      "Profesjonell salg og verdivurdering av næringseiendom i Nord-Norge. Vi tilbyr også utleie, transaksjoner og strategisk rådgivning for eiendomsbesittere.",
+  });
+}
 
 export default function TjenesterPage() {
   return (

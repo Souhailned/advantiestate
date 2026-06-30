@@ -1,4 +1,5 @@
 import { constructMetadata, formatDate } from "@/lib/utils";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SubHero } from "@/components/site/SubHero";
 import { PhotoBand } from "@/components/site/PhotoBand";
 import { Faq, type FaqItem } from "@/components/site/Faq";
@@ -6,15 +7,18 @@ import StructuredData from "@/components/StructuredData";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { SeOgsa } from "@/components/site/SeOgsa";
 import { VerdivurderingIntake } from "./VerdivurderingIntake";
+import { Metadata } from "next";
 
 const LAST_UPDATED = "2026-05-22";
 
-export const metadata = constructMetadata({
-  path: "/tjenester/verdivurdering",
-  title: "Verdivurdering av Næringseiendom | Advanti Estate",
-  description:
-    "Trenger du verdivurdering av næringseiendom? Advanti tilbyr profesjonelle analyser og verdivurderinger i Nord-Norge for et solid beslutningsgrunnlag.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/tjenester/verdivurdering",
+    title: "Verdivurdering av Næringseiendom | Advanti Estate",
+    description:
+      "Trenger du verdivurdering av næringseiendom? Advanti tilbyr profesjonelle analyser og verdivurderinger i Nord-Norge for et solid beslutningsgrunnlag.",
+  });
+}
 
 const FAQ_ITEMS: FaqItem[] = [
   {
@@ -39,7 +43,9 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-export default function VerdivurderingPage() {
+export default async function VerdivurderingPage() {
+  const locale = await getLocale();
+  const t = await getTranslations();
   return (
     <>
       <StructuredData
@@ -355,7 +361,7 @@ export default function VerdivurderingPage() {
 
       <div className="wrap pb-16 text-center">
         <p className="eyebrow no-rule">
-          Sist oppdatert · {formatDate(LAST_UPDATED)}
+          Sist oppdatert · {formatDate(LAST_UPDATED, locale, t)}
         </p>
       </div>
     </>

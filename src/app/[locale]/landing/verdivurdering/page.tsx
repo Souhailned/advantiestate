@@ -2,14 +2,17 @@ import { constructMetadata } from "@/lib/utils";
 import { ValuationCTAButton } from "@/components/CTAButtons";
 import { HvaSkjerVidereBlock } from "@/components/ui/HvaSkjerVidereBlock";
 import { RiShieldCheckLine, RiUserStarLine, RiBuildingLine } from "@remixicon/react";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/landing/verdivurdering",
-  noIndex: true, // paid-ads landing page — keep out of the organic index
-  title: "Uforpliktende Verdivurdering av Næringseiendom i Nord-Norge | Advanti Estate",
-  description:
-    "Få en profesjonell verdivurdering av din næringseiendom basert på lokal markedsinnsikt i Nord-Norge. Vi svarer innen 24 timer. Uforpliktende samtale.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/landing/verdivurdering",
+    noIndex: true, // paid-ads landing page — keep out of the organic index
+    title: "Uforpliktende Verdivurdering av Næringseiendom i Nord-Norge | Advanti Estate",
+    description:
+      "Få en profesjonell verdivurdering av din næringseiendom basert på lokal markedsinnsikt i Nord-Norge. Vi svarer innen 24 timer. Uforpliktende samtale.",
+  });
+}
 
 export default function VerdivurderingLandingPage() {
   return (

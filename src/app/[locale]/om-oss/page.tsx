@@ -3,13 +3,16 @@ import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/om-oss",
-  title: "Om Advanti Estate | Din Næringsmegler i Nord-Norge",
-  description:
-    "Advanti Estate er din erfarne partner for kjøp, salg og utleie av næringseiendom i Nord-Norge. Vi tilbyr lokal kunnskap og skreddersydde løsninger.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/om-oss",
+    title: "Om Advanti Estate | Din Næringsmegler i Nord-Norge",
+    description:
+      "Advanti Estate er din erfarne partner for kjøp, salg og utleie av næringseiendom i Nord-Norge. Vi tilbyr lokal kunnskap og skreddersydde løsninger.",
+  });
+}
 
 export default function About() {
   return (

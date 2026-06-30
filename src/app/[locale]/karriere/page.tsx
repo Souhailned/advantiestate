@@ -4,13 +4,16 @@ import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/karriere",
-  title: "Karriere hos Advanti Estate | Bli næringsmegler i Nord-Norge",
-  description:
-    "Vi lyser sjelden ut — men leter alltid. Advanti Estate ansetter når vi møter riktig person, og ønsker å vokse i Mo i Rana, Narvik og Harstad. Send en åpen søknad.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/karriere",
+    title: "Karriere hos Advanti Estate | Bli næringsmegler i Nord-Norge",
+    description:
+      "Vi lyser sjelden ut — men leter alltid. Advanti Estate ansetter når vi møter riktig person, og ønsker å vokse i Mo i Rana, Narvik og Harstad. Send en åpen søknad.",
+  });
+}
 
 export default function KarrierePage() {
   return (

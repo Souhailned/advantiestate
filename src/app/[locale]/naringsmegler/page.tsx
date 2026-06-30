@@ -1,6 +1,7 @@
 import { allLocationPosts } from "content-collections";
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next";
 
 import StructuredData, {
   BreadcrumbStructuredData,
@@ -9,12 +10,14 @@ import { CtaStrip } from "@/components/site/CtaStrip";
 import { SubHero } from "@/components/site/SubHero";
 import { constructMetadata } from "@/lib/utils";
 
-export const metadata = constructMetadata({
-  title: "Næringsmegler i Nord-Norge | Advanti Estate",
-  description:
-    "Næringsmegler i Nord-Norge med lokal tilstedeværelse. Advanti bistår med salg, utleie og verdivurdering av næringseiendom i sentrale byer.",
-  path: "/naringsmegler",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    title: "Næringsmegler i Nord-Norge | Advanti Estate",
+    description:
+      "Næringsmegler i Nord-Norge med lokal tilstedeværelse. Advanti bistår med salg, utleie og verdivurdering av næringseiendom i sentrale byer.",
+    path: "/naringsmegler",
+  });
+}
 
 /** Picks the value of the first marketStat whose label matches a keyword. */
 function findStat(

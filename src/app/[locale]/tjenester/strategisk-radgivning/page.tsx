@@ -1,19 +1,23 @@
 import { constructMetadata, formatDate } from "@/lib/utils";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SubHero } from "@/components/site/SubHero";
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { PhotoBand } from "@/components/site/PhotoBand";
 import { Faq, type FaqItem } from "@/components/site/Faq";
 import StructuredData from "@/components/StructuredData";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { Metadata } from "next";
 
 const LAST_UPDATED = "2026-05-22";
 
-export const metadata = constructMetadata({
-  path: "/tjenester/strategisk-radgivning",
-  title: "Strategisk Rådgivning Næringseiendom | Advanti Estate",
-  description:
-    "Advanti tilbyr strategisk rådgivning for eiendomsinvestorer og -utviklere i Nord-Norge, inkludert porteføljestrategi, akkvisisjon og exit-strategi.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/tjenester/strategisk-radgivning",
+    title: "Strategisk Rådgivning Næringseiendom | Advanti Estate",
+    description:
+      "Advanti tilbyr strategisk rådgivning for eiendomsinvestorer og -utviklere i Nord-Norge, inkludert porteføljestrategi, akkvisisjon og exit-strategi.",
+  });
+}
 
 const FAQ_ITEMS: FaqItem[] = [
   {
@@ -38,7 +42,9 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-export default function StrategiskRadgivningPage() {
+export default async function StrategiskRadgivningPage() {
+  const locale = await getLocale();
+  const t = await getTranslations();
   return (
     <>
       <StructuredData
@@ -334,7 +340,7 @@ export default function StrategiskRadgivningPage() {
       />
       <div className="wrap pb-16 text-center">
         <p className="eyebrow no-rule">
-          Sist oppdatert · {formatDate(LAST_UPDATED)}
+          Sist oppdatert · {formatDate(LAST_UPDATED, locale, t)}
         </p>
       </div>
     </>

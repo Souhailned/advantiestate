@@ -1,4 +1,5 @@
 import { constructMetadata, formatDate } from "@/lib/utils";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SubHero } from "@/components/site/SubHero";
 import { CtaStrip } from "@/components/site/CtaStrip";
 import { PhotoBand } from "@/components/site/PhotoBand";
@@ -6,6 +7,7 @@ import { Faq, type FaqItem } from "@/components/site/Faq";
 import { ActiveListingsStrip } from "@/components/eiendommer/ActiveListingsStrip";
 import StructuredData from "@/components/StructuredData";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { Metadata } from "next";
 
 const LAST_UPDATED = "2026-05-22";
 
@@ -13,12 +15,14 @@ const LAST_UPDATED = "2026-05-22";
 // so a publish appears without a redeploy, same window as /eiendommer.
 export const revalidate = 600;
 
-export const metadata = constructMetadata({
-  path: "/tjenester/salg",
-  title: "Salg av Næringseiendom i Nord-Norge | Advanti Estate",
-  description:
-    "Planlegger du salg av næringseiendom? Advanti bistår deg gjennom hele salgsprosessen, fra verdivurdering og markedsføring til forhandlinger og oppgjør.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/tjenester/salg",
+    title: "Salg av Næringseiendom i Nord-Norge | Advanti Estate",
+    description:
+      "Planlegger du salg av næringseiendom? Advanti bistår deg gjennom hele salgsprosessen, fra verdivurdering og markedsføring til forhandlinger og oppgjør.",
+  });
+}
 
 const FAQ_ITEMS: FaqItem[] = [
   {
@@ -43,7 +47,9 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-export default function SalgPage() {
+export default async function SalgPage() {
+  const locale = await getLocale();
+  const t = await getTranslations();
   return (
     <>
       <StructuredData
@@ -380,7 +386,7 @@ export default function SalgPage() {
       />
       <div className="wrap pb-16 text-center">
         <p className="eyebrow no-rule">
-          Sist oppdatert · {formatDate(LAST_UPDATED)}
+          Sist oppdatert · {formatDate(LAST_UPDATED, locale, t)}
         </p>
       </div>
     </>

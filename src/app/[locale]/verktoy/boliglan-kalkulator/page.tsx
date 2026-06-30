@@ -1,13 +1,16 @@
 import { CalculatorLayout } from "@/components/verktoy/CalculatorLayout";
 import { MortgageCalculator } from "@/components/verktoy/MortgageCalculator";
 import { constructMetadata } from "@/lib/utils";
+import { Metadata } from "next";
 
-export const metadata = constructMetadata({
-  path: "/verktoy/boliglan-kalkulator",
-  title: "Boliglån Kalkulator | Advanti Estate",
-  description:
-    "Beregn månedlige kostnader, total rentekostnad og nedbetalingsplan for næringslån. Få oversikt over finansieringen av din næringseiendom.",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    path: "/verktoy/boliglan-kalkulator",
+    title: "Boliglån Kalkulator | Advanti Estate",
+    description:
+      "Beregn månedlige kostnader, total rentekostnad og nedbetalingsplan for næringslån. Få oversikt over finansieringen av din næringseiendom.",
+  });
+}
 
 export default function BoliglanKalkulatorPage() {
   return (

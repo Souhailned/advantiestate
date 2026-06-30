@@ -2,6 +2,7 @@ import clsx, { type ClassValue } from "clsx";
 import ms from "ms";
 import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
+import { getLocale, getTranslations } from "next-intl/server";
 import { siteConfig } from "@/app/siteConfig";
 
 export function cx(...args: ClassValue[]) {
@@ -13,7 +14,11 @@ export const truncate = (str: string | null, length: number) => {
   return `${str.slice(0, length - 3)}...`;
 };
 
-export function formatDate(date: string) {
+export function formatDate(
+  date: string,
+  locale: string = "en",
+  t?: (key: string, values?: Record<string, string | number | Date>) => string,
+) {
   let currentDate = new Date().getTime();
   if (!date.includes("T")) {
     date = `${date}T00:00:00`;
@@ -22,25 +27,36 @@ export function formatDate(date: string) {
   let timeDifference = Math.abs(currentDate - targetDate);
   let daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
 
-  let fullDate = new Date(date).toLocaleString("nb-NO", {
+  const localeCode =
+    locale === "no" ? "nb-NO" : locale === "nl" ? "nl-NL" : "en-US";
+
+  let fullDate = new Date(date).toLocaleString(localeCode, {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
 
   if (daysAgo < 1) {
-    return "I dag";
+    return t ? t("FormatDate.today") : "I dag";
   } else if (daysAgo < 7) {
-    return `${fullDate} (${daysAgo} dager siden)`;
+    return t
+      ? t("FormatDate.daysAgo", { date: fullDate, count: daysAgo })
+      : `${fullDate} (${daysAgo} dager siden)`;
   } else if (daysAgo < 30) {
     const weeksAgo = Math.floor(daysAgo / 7);
-    return `${fullDate} (${weeksAgo} uker siden)`;
+    return t
+      ? t("FormatDate.weeksAgo", { date: fullDate, count: weeksAgo })
+      : `${fullDate} (${weeksAgo} uker siden)`;
   } else if (daysAgo < 365) {
     const monthsAgo = Math.floor(daysAgo / 30);
-    return `${fullDate} (${monthsAgo} måneder siden)`;
+    return t
+      ? t("FormatDate.monthsAgo", { date: fullDate, count: monthsAgo })
+      : `${fullDate} (${monthsAgo} måneder siden)`;
   } else {
     const yearsAgo = Math.floor(daysAgo / 365);
-    return `${fullDate} (${yearsAgo} år siden)`;
+    return t
+      ? t("FormatDate.yearsAgo", { date: fullDate, count: yearsAgo })
+      : `${fullDate} (${yearsAgo} år siden)`;
   }
 }
 
@@ -62,9 +78,9 @@ export function formatDate(date: string) {
 // sitemap.
 // ---------------------------------------------------------------------------
 
-const SITE_TITLE_FALLBACK = "Advanti | Næringsmegler i Nord-Norge";
-const SITE_DESCRIPTION_FALLBACK =
-  "Advanti tilbyr ekspertise innen kjøp, salg, utleie, verdivurdering og strategisk rådgivning for næringseiendom i Nord-Norge.";
+// Site-wide title/description/OG-alt fallbacks are now locale-aware and
+// sourced from next-intl messages (Metadata namespace) inside baseMetadata()
+// and constructMetadata() via getTranslations().
 // Route handler at /api/og/brand renders the editorial brand card.
 // constructMetadata uses it as the OG fallback so every indexable route
 // emits at least the brand card. Per-article routes (e.g. blog posts) pass
@@ -72,7 +88,6 @@ const SITE_DESCRIPTION_FALLBACK =
 // /opengraph-image.jpg is still served and is referenced by StructuredData
 // for the Organization schema — that's a JSON-LD concern, not og:image.
 const OG_IMAGE_DEFAULT = "/api/og/brand";
-const OG_IMAGE_ALT = "Advanti - Næringseiendom i Nord-Norge";
 
 const SEO_KEYWORDS = [
   "næringseiendom Nord-Norge",
@@ -96,26 +111,39 @@ const SEO_KEYWORDS = [
  * genuinely site-wide (metadataBase, OG/twitter defaults, icons via the App
  * Router file convention, keywords, authors) and deliberately NO
  * `alternates.canonical` — see the note above.
+ *
+ * Now async: title, description, OG alt and category are locale-aware,
+ * sourced from next-intl messages (Metadata namespace). The openGraph
+ * locale is derived from the active request locale.
  */
-export function baseMetadata(): Metadata {
+export async function baseMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+  const locale = await getLocale();
+
+  const titleFallback = t("titleFallback");
+  const descriptionFallback = t("descriptionFallback");
+  const ogImageAlt = t("ogImageAlt");
+  const ogLocale =
+    locale === "no" ? "nb_NO" : locale === "nl" ? "nl_NL" : "en_US";
+
   return {
-    title: SITE_TITLE_FALLBACK,
-    description: SITE_DESCRIPTION_FALLBACK,
+    title: titleFallback,
+    description: descriptionFallback,
     metadataBase: new URL(siteConfig.url),
     openGraph: {
-      title: SITE_TITLE_FALLBACK,
-      description: SITE_DESCRIPTION_FALLBACK,
+      title: titleFallback,
+      description: descriptionFallback,
       images: [
-        { url: OG_IMAGE_DEFAULT, width: 1200, height: 630, alt: OG_IMAGE_ALT },
+        { url: OG_IMAGE_DEFAULT, width: 1200, height: 630, alt: ogImageAlt },
       ],
-      locale: "nb_NO",
+      locale: ogLocale,
       type: "website",
       siteName: siteConfig.name,
     },
     twitter: {
       card: "summary_large_image",
-      title: SITE_TITLE_FALLBACK,
-      description: SITE_DESCRIPTION_FALLBACK,
+      title: titleFallback,
+      description: descriptionFallback,
       images: [OG_IMAGE_DEFAULT],
       creator: siteConfig.contact.social.twitterHandle,
       site: siteConfig.contact.social.twitterHandle,
@@ -125,14 +153,14 @@ export function baseMetadata(): Metadata {
     manifest: "/manifest.json",
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     keywords: SEO_KEYWORDS,
-    category: "Næringseiendom",
+    category: t("category"),
   };
 }
 
-export function constructMetadata({
+export async function constructMetadata({
   path,
-  title = SITE_TITLE_FALLBACK,
-  description = SITE_DESCRIPTION_FALLBACK,
+  title,
+  description,
   image = OG_IMAGE_DEFAULT,
   imageAlt,
   noIndex = false,
@@ -150,9 +178,10 @@ export function constructMetadata({
    *  route at /api/og/brand. Per-article routes (e.g. blog posts) pass
    *  their own URL like /api/og/blog/<slug> to override. */
   image?: string;
-  /** Optional alt text for the OG image. Falls back to OG_IMAGE_ALT (the
-   *  site-wide brand alt) when omitted. Pages with a per-asset OG card
-   *  (blog posts, listings) should pass their content-specific alt. */
+  /** Optional alt text for the OG image. Falls back to the locale-aware
+   *  site-wide brand alt (Metadata.ogImageAlt) when omitted. Pages with a
+   *  per-asset OG card (blog posts, listings) should pass their
+   *  content-specific alt. */
   imageAlt?: string;
   noIndex?: boolean;
   ogType?: "website" | "article";
@@ -162,17 +191,28 @@ export function constructMetadata({
   modifiedTime?: string;
   /** Author name(s) — only used when ogType is "article". */
   authors?: string[];
-}): Metadata {
-  const base = baseMetadata();
-  const metaTitle = normalizeMetaTitle(title);
-  const metaDescription = normalizeMetaDescription(description);
+}): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+  const locale = await getLocale();
+
+  const titleFallback = t("titleFallback");
+  const descriptionFallback = t("descriptionFallback");
+  const ogImageAlt = t("ogImageAlt");
+  const ogLocale =
+    locale === "no" ? "nb_NO" : locale === "nl" ? "nl_NL" : "en_US";
+
+  const base = await baseMetadata();
+  const metaTitle = normalizeMetaTitle(title ?? titleFallback);
+  const metaDescription = normalizeMetaDescription(
+    description ?? descriptionFallback,
+  );
   const canonicalUrl = `${siteConfig.url}${path}`;
   const ogImages = [
     {
       url: image,
       width: 1200,
       height: 630,
-      alt: imageAlt ?? OG_IMAGE_ALT,
+      alt: imageAlt ?? ogImageAlt,
     },
   ];
 
@@ -185,7 +225,7 @@ export function constructMetadata({
           description: metaDescription,
           url: canonicalUrl,
           images: ogImages,
-          locale: "nb_NO",
+          locale: ogLocale,
           type: "article",
           siteName: siteConfig.name,
           publishedTime,
@@ -197,7 +237,7 @@ export function constructMetadata({
           description: metaDescription,
           url: canonicalUrl,
           images: ogImages,
-          locale: "nb_NO",
+          locale: ogLocale,
           type: "website",
           siteName: siteConfig.name,
         };
