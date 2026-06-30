@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Modal from "@/components/blog/modal"
 import { RiCloseLine, RiCalculatorLine, RiCheckLine } from "@remixicon/react"
 import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import { useTranslations } from "next-intl"
 import { submitCtaLead } from "@/app/actions/cta-lead"
 import { trackLeadSubmit } from "@/lib/analytics"
 import { useLeadStartOnFocus } from "@/lib/hooks/useLeadFunnel"
@@ -19,6 +20,8 @@ export default function ValuationRequestModal({
   showModal,
   setShowModal,
 }: ValuationRequestModalProps) {
+  const t = useTranslations("Modals.valuation")
+  const tc = useTranslations("Modals.common")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const onFirstFocus = useLeadStartOnFocus("service-modal", "Verdsettelse")
   const [isSuccess, setIsSuccess] = useState(false)
@@ -72,7 +75,7 @@ export default function ValuationRequestModal({
         <div className="border-b border-warm-grey-1/20 bg-gradient-to-br from-light-blue/10 to-warm-white px-6 py-6">
           <button
             type="button"
-            aria-label="Lukk"
+            aria-label={tc("closeAriaLabel")}
             onClick={() => setShowModal(false)}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full text-warm-grey-2 transition-colors hover:bg-warm-grey-1/10"
           >
@@ -85,10 +88,10 @@ export default function ValuationRequestModal({
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-warm-grey">
-                Uforpliktende verdivurdering
+                {t("title")}
               </h2>
               <p className="mt-1 text-sm text-warm-grey-2">
-                Få en profesjonell innledende verdivurdering av din næringseiendom
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -101,10 +104,10 @@ export default function ValuationRequestModal({
               <RiCheckLine className="h-8 w-8 text-green-600" />
             </div>
             <h3 className="text-xl font-semibold text-warm-grey">
-              Takk for din henvendelse!
+              {tc("successTitle")}
             </h3>
             <p className="mt-2 text-center text-warm-grey-2">
-              Vi vil kontakte deg innen 24 timer for å diskutere verdivurdering av din eiendom.
+              {t("successBody")}
             </p>
           </div>
         ) : (
@@ -119,13 +122,13 @@ export default function ValuationRequestModal({
                       htmlFor="firstname"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Fornavn *
+                      {tc("firstnameLabel")}
                     </label>
                     <Input
                       id="firstname"
                       name="firstname"
                       type="text"
-                      placeholder="Fornavn"
+                      placeholder={tc("firstnamePlaceholder")}
                       required
                     />
                   </div>
@@ -134,13 +137,13 @@ export default function ValuationRequestModal({
                       htmlFor="lastname"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Etternavn *
+                      {tc("lastnameLabel")}
                     </label>
                     <Input
                       id="lastname"
                       name="lastname"
                       type="text"
-                      placeholder="Etternavn"
+                      placeholder={tc("lastnamePlaceholder")}
                       required
                     />
                   </div>
@@ -153,13 +156,13 @@ export default function ValuationRequestModal({
                       htmlFor="email"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      E-post *
+                      {tc("emailLabel")}
                     </label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="din@epost.no"
+                      placeholder={tc("emailPlaceholder")}
                       required
                     />
                   </div>
@@ -168,13 +171,13 @@ export default function ValuationRequestModal({
                       htmlFor="phone"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Telefon *
+                      {tc("phoneLabel")}
                     </label>
                     <Input
                       id="phone"
                       name="phone"
                       type="tel"
-                      placeholder="+47 123 45 678"
+                      placeholder={tc("phonePlaceholder")}
                       required
                     />
                   </div>
@@ -186,13 +189,13 @@ export default function ValuationRequestModal({
                     htmlFor="address"
                     className="mb-2 block text-sm font-medium text-warm-grey"
                   >
-                    Adresse / Sted *
+                    {t("addressLabel")}
                   </label>
                   <Input
                     id="address"
                     name="address"
                     type="text"
-                    placeholder="f.eks. Storgata 1, Bodø"
+                    placeholder={t("addressPlaceholder")}
                     required
                   />
                 </div>
@@ -204,19 +207,19 @@ export default function ValuationRequestModal({
                       htmlFor="propertyType"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Eiendomstype *
+                      {t("propertyTypeLabel")}
                     </label>
                     <Select name="propertyType" required>
                       <SelectTrigger id="propertyType">
-                        <SelectValue placeholder="Velg eiendomstype" />
+                        <SelectValue placeholder={t("propertyTypePlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="kontor">Kontor</SelectItem>
-                        <SelectItem value="handel">Handel / Butikk</SelectItem>
-                        <SelectItem value="industri">Industri / Lager</SelectItem>
-                        <SelectItem value="bolig">Bolig (flermannsbolig)</SelectItem>
-                        <SelectItem value="hotell">Hotell / Overnatting</SelectItem>
-                        <SelectItem value="annet">Annet</SelectItem>
+                        <SelectItem value="kontor">{t("propertyTypeKontor")}</SelectItem>
+                        <SelectItem value="handel">{t("propertyTypeHandel")}</SelectItem>
+                        <SelectItem value="industri">{t("propertyTypeIndustri")}</SelectItem>
+                        <SelectItem value="bolig">{t("propertyTypeBolig")}</SelectItem>
+                        <SelectItem value="hotell">{t("propertyTypeHotell")}</SelectItem>
+                        <SelectItem value="annet">{t("propertyTypeAnnet")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -225,14 +228,14 @@ export default function ValuationRequestModal({
                       htmlFor="size"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Areal (m²)
+                      {t("sizeLabel")}
                     </label>
                     <Input
                       id="size"
                       name="size"
                       type="text"
                       inputMode="numeric"
-                      placeholder="1000"
+                      placeholder={t("sizePlaceholder")}
                     />
                   </div>
                 </div>
@@ -244,14 +247,14 @@ export default function ValuationRequestModal({
                       htmlFor="income"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Årlige inntekter (kr)
+                      {t("incomeLabel")}
                     </label>
                     <Input
                       id="income"
                       name="income"
                       type="text"
                       inputMode="numeric"
-                      placeholder="1 000 000"
+                      placeholder={t("incomePlaceholder")}
                     />
                   </div>
                   <div>
@@ -259,14 +262,14 @@ export default function ValuationRequestModal({
                       htmlFor="costs"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Årlige kostnader (kr)
+                      {t("costsLabel")}
                     </label>
                     <Input
                       id="costs"
                       name="costs"
                       type="text"
                       inputMode="numeric"
-                      placeholder="500 000"
+                      placeholder={t("costsPlaceholder")}
                     />
                   </div>
                 </div>
@@ -280,12 +283,12 @@ export default function ValuationRequestModal({
                   disabled={isSubmitting}
                   className="w-full"
                 >
-                  {isSubmitting ? "Sender..." : "Send forespørsel"}
+                  {isSubmitting ? tc("submitting") : tc("submit")}
                 </Button>
               </div>
 
               <p className="mt-4 text-center text-xs text-warm-grey-2">
-                Ved å sende inn dette skjemaet godtar du at vi kontakter deg om din eiendom.
+                {t("consent")}
               </p>
             </form>
           </>

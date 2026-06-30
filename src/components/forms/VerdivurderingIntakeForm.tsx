@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
+import { useTranslations } from "next-intl"
 
 import { subscribeVerdivurderingIntake } from "@/app/actions/verdivurdering-intake"
 import { trackEvent, trackLeadSubmit } from "@/lib/analytics"
@@ -47,19 +48,19 @@ type Props = {
 }
 
 const PROPERTY_TYPES = [
-  "Kontor",
-  "Handel",
-  "Lager / logistikk",
-  "Kombinasjon",
-  "Annet",
+  "propertyTypeKontor",
+  "propertyTypeHandel",
+  "propertyTypeLager",
+  "propertyTypeKombinasjon",
+  "propertyTypeAnnet",
 ] as const
 
 const PURPOSES = [
-  "Vurderer salg",
-  "Refinansiering",
-  "Regnskap / IFRS",
-  "Vurderer kjøp",
-  "Bare nysgjerrig",
+  "purposeVurdererSalg",
+  "purposeRefinansiering",
+  "purposeRegnskapIFRS",
+  "purposeVurdererKjop",
+  "purposeBareNysgjerrig",
 ] as const
 
 /**
@@ -89,9 +90,10 @@ export function VerdivurderingIntakeForm({
   intakeSource,
   prefill,
   showHeading = true,
-  headingTitle = "Be om verdivurdering.",
-  headingSubtitle = "Det tar to minutter. Du forplikter deg ikke til noe.",
+  headingTitle,
+  headingSubtitle,
 }: Props) {
+  const t = useTranslations("Forms.verdivurdering")
   const [state, setState] = useState<FormStatus>({ status: "idle" })
   // Human form label for the funnel events — distinguishes beslutningsgrunnlag from the
   // verdivurdering reuse of the same form.
@@ -124,7 +126,7 @@ export function VerdivurderingIntakeForm({
       console.error(e)
       setState({
         status: "error",
-        message: "Noe gikk galt. Prøv igjen om et øyeblikk.",
+        message: t("errorGeneric"),
       })
     }
   }
@@ -135,10 +137,9 @@ export function VerdivurderingIntakeForm({
         <div className="check" aria-hidden="true">
           ✓
         </div>
-        <h2>Takk — forespørselen er mottatt.</h2>
+        <h2>{t("successTitle")}</h2>
         <p className="sub" style={{ marginTop: 12, maxWidth: "38ch" }}>
-          En av partnerne våre tar kontakt innen 24 timer på virkedager for en
-          uforpliktende samtale om eiendommen din.
+          {t("successBody")}
         </p>
       </div>
     )
@@ -154,8 +155,8 @@ export function VerdivurderingIntakeForm({
     >
       {showHeading && (
         <>
-          <h2>{headingTitle}</h2>
-          <p className="sub">{headingSubtitle}</p>
+          <h2>{headingTitle ?? t("headingTitle")}</h2>
+          <p className="sub">{headingSubtitle ?? t("headingSubtitle")}</p>
         </>
       )}
 
@@ -166,44 +167,43 @@ export function VerdivurderingIntakeForm({
 
       {hasPrefill && (
         <p className="vv-prefill-note">
-          Vi tar utgangspunkt i tallene fra næringskalkulatoren — juster gjerne
-          om noe har endret seg.
+          {t("prefillNote")}
         </p>
       )}
 
       {/* STEG 1 — eiendommen */}
-      <div className="step-mark">01 — Om eiendommen</div>
+      <div className="step-mark">{t("step1")}</div>
 
-      <span className="vv-seg-label">Eiendomstype</span>
+      <span className="vv-seg-label">{t("propertyTypeLabel")}</span>
       <div className="vv-seg">
-        {PROPERTY_TYPES.map((t, i) => (
-          <label key={t}>
+        {PROPERTY_TYPES.map((pt, i) => (
+          <label key={pt}>
             <input
               type="radio"
               name="propertyType"
-              value={t}
+              value={t(pt)}
               required={i === 0}
-              defaultChecked={matchesType(prefill?.type, t)}
+              defaultChecked={matchesType(prefill?.type, t(pt))}
               disabled={isSubmitting}
             />
-            <span>{t}</span>
+            <span>{t(pt)}</span>
           </label>
         ))}
       </div>
 
       <div className="field-row">
         <div className="field">
-          <label htmlFor="address">Adresse</label>
+          <label htmlFor="address">{t("addressLabel")}</label>
           <input
             id="address"
             name="address"
             type="text"
             disabled={isSubmitting}
-            placeholder="Gateadresse"
+            placeholder={t("addressPlaceholder")}
           />
         </div>
         <div className="field">
-          <label htmlFor="location">By</label>
+          <label htmlFor="location">{t("cityLabel")}</label>
           <input
             id="location"
             name="location"
@@ -211,14 +211,14 @@ export function VerdivurderingIntakeForm({
             required
             disabled={isSubmitting}
             defaultValue={prefill?.by ?? ""}
-            placeholder="Bodø, Tromsø, Alta …"
+            placeholder={t("cityPlaceholder")}
           />
         </div>
       </div>
 
       <div className="field-row">
         <div className="field">
-          <label htmlFor="areal">Areal (BTA m²)</label>
+          <label htmlFor="areal">{t("arealLabel")}</label>
           <input
             id="areal"
             name="areal"
@@ -226,11 +226,11 @@ export function VerdivurderingIntakeForm({
             inputMode="numeric"
             disabled={isSubmitting}
             defaultValue={prefill?.areal ?? ""}
-            placeholder="f.eks. 2 400"
+            placeholder={t("arealPlaceholder")}
           />
         </div>
         <div className="field">
-          <label htmlFor="leie">Årlig leieinntekt (valgfritt)</label>
+          <label htmlFor="leie">{t("leieLabel")}</label>
           <input
             id="leie"
             name="leie"
@@ -238,33 +238,33 @@ export function VerdivurderingIntakeForm({
             inputMode="numeric"
             disabled={isSubmitting}
             defaultValue={prefill?.leie ?? ""}
-            placeholder="kr — om kjent"
+            placeholder={t("leiePlaceholder")}
           />
         </div>
       </div>
 
       {/* STEG 2 — formål */}
-      <div className="step-mark">02 — Formål med vurderingen</div>
+      <div className="step-mark">{t("step2")}</div>
       <div className="vv-seg">
         {PURPOSES.map((p, i) => (
           <label key={p}>
             <input
               type="radio"
               name="purpose"
-              value={p}
+              value={t(p)}
               required={i === 0}
               disabled={isSubmitting}
             />
-            <span>{p}</span>
+            <span>{t(p)}</span>
           </label>
         ))}
       </div>
 
       {/* STEG 3 — kontakt */}
-      <div className="step-mark">03 — Dine opplysninger</div>
+      <div className="step-mark">{t("step3")}</div>
       <div className="field-row">
         <div className="field">
-          <label htmlFor="firstName">Fullt navn</label>
+          <label htmlFor="firstName">{t("fullNameLabel")}</label>
           <input
             id="firstName"
             name="firstName"
@@ -272,24 +272,24 @@ export function VerdivurderingIntakeForm({
             required
             disabled={isSubmitting}
             autoComplete="name"
-            placeholder="Ola Nordmann"
+            placeholder={t("fullNamePlaceholder")}
           />
         </div>
         <div className="field">
-          <label htmlFor="company">Selskap</label>
+          <label htmlFor="company">{t("companyLabel")}</label>
           <input
             id="company"
             name="company"
             type="text"
             disabled={isSubmitting}
             autoComplete="organization"
-            placeholder="Selskapsnavn AS"
+            placeholder={t("companyPlaceholder")}
           />
         </div>
       </div>
       <div className="field-row">
         <div className="field">
-          <label htmlFor="email">E-post</label>
+          <label htmlFor="email">{t("emailLabel")}</label>
           <input
             id="email"
             name="email"
@@ -297,11 +297,11 @@ export function VerdivurderingIntakeForm({
             required
             disabled={isSubmitting}
             autoComplete="email"
-            placeholder="ola@selskap.no"
+            placeholder={t("emailPlaceholder")}
           />
         </div>
         <div className="field">
-          <label htmlFor="phone">Telefon</label>
+          <label htmlFor="phone">{t("phoneLabel")}</label>
           <input
             id="phone"
             name="phone"
@@ -309,28 +309,26 @@ export function VerdivurderingIntakeForm({
             required
             disabled={isSubmitting}
             autoComplete="tel"
-            placeholder="+47 000 00 000"
+            placeholder={t("phonePlaceholder")}
           />
         </div>
       </div>
 
       <div className="field">
-        <label htmlFor="notes">Noe mer vi bør vite? (valgfritt)</label>
+        <label htmlFor="notes">{t("notesLabel")}</label>
         <textarea
           id="notes"
           name="notes"
           rows={3}
           disabled={isSubmitting}
-          placeholder="Leietakere, kontraktslengde, tilstand, tidshorisont …"
+          placeholder={t("notesPlaceholder")}
         />
       </div>
 
       <label className="consent">
         <input type="checkbox" required disabled={isSubmitting} />
         <span>
-          Jeg samtykker til at Advanti behandler personopplysningene mine for å
-          besvare henvendelsen. Vi deler aldri kontaktinformasjon med
-          tredjepart, og all informasjon behandles konfidensielt.
+          {t("consent")}
         </span>
       </label>
 
@@ -348,7 +346,7 @@ export function VerdivurderingIntakeForm({
         className="btn btn-dark submit"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Sender …" : "Send forespørsel"}
+        {isSubmitting ? t("submitting") : t("submit")}
         {!isSubmitting && <span className="arrow">→</span>}
       </button>
     </form>

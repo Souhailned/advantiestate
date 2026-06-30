@@ -5,6 +5,7 @@ import { Input } from "@/components/Input"
 import Modal from "@/components/blog/modal"
 import { RiCloseLine, RiTeamLine, RiCheckLine } from "@remixicon/react"
 import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import { useTranslations } from "next-intl"
 import { submitCtaLead } from "@/app/actions/cta-lead"
 import { trackLeadSubmit } from "@/lib/analytics"
 import { useLeadStartOnFocus } from "@/lib/hooks/useLeadFunnel"
@@ -18,6 +19,8 @@ export default function ConsultationModal({
   showModal,
   setShowModal,
 }: ConsultationModalProps) {
+  const t = useTranslations("Modals.consultation")
+  const tc = useTranslations("Modals.common")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const onFirstFocus = useLeadStartOnFocus("service-modal", "Konsultasjon")
   const [isSuccess, setIsSuccess] = useState(false)
@@ -70,7 +73,7 @@ export default function ConsultationModal({
         <div className="border-b border-warm-grey-1/20 bg-gradient-to-br from-light-blue/10 to-warm-white px-6 py-6">
           <button
             type="button"
-            aria-label="Lukk"
+            aria-label={tc("closeAriaLabel")}
             onClick={() => setShowModal(false)}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full text-warm-grey-2 transition-colors hover:bg-warm-grey-1/10"
           >
@@ -83,10 +86,10 @@ export default function ConsultationModal({
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-warm-grey">
-                Bli kontaktet
+                {t("title")}
               </h2>
               <p className="mt-1 text-sm text-warm-grey-2">
-                La oss diskutere hvordan vi kan hjelpe deg
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -99,10 +102,10 @@ export default function ConsultationModal({
               <RiCheckLine className="h-8 w-8 text-green-600" />
             </div>
             <h3 className="text-xl font-semibold text-warm-grey">
-              Takk for din interesse!
+              {t("successTitle")}
             </h3>
             <p className="mt-2 text-center text-warm-grey-2">
-              Vi vil kontakte deg snarest for å avtale en tid som passer deg.
+              {t("successBody")}
             </p>
           </div>
         ) : (

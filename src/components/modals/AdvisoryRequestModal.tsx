@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Modal from "@/components/blog/modal"
 import { RiCloseLine, RiLightbulbLine, RiCheckLine } from "@remixicon/react"
 import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import { useTranslations } from "next-intl"
 import { submitCtaLead } from "@/app/actions/cta-lead"
 import { trackLeadSubmit } from "@/lib/analytics"
 import { useLeadStartOnFocus } from "@/lib/hooks/useLeadFunnel"
@@ -19,6 +20,8 @@ export default function AdvisoryRequestModal({
   showModal,
   setShowModal,
 }: AdvisoryRequestModalProps) {
+  const t = useTranslations("Modals.advisory")
+  const tc = useTranslations("Modals.common")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const onFirstFocus = useLeadStartOnFocus("service-modal", "Rådgivning")
   const [isSuccess, setIsSuccess] = useState(false)
@@ -69,7 +72,7 @@ export default function AdvisoryRequestModal({
         <div className="border-b border-warm-grey-1/20 bg-gradient-to-br from-light-blue/10 to-warm-white px-6 py-6">
           <button
             type="button"
-            aria-label="Lukk"
+            aria-label={tc("closeAriaLabel")}
             onClick={() => setShowModal(false)}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full text-warm-grey-2 transition-colors hover:bg-warm-grey-1/10"
           >
@@ -81,10 +84,10 @@ export default function AdvisoryRequestModal({
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-warm-grey">
-                Be om rådgivning
+                {t("title")}
               </h2>
               <p className="mt-1 text-sm text-warm-grey-2">
-                Vi hjelper deg med kompetent rådgivning om næringseiendom
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -96,10 +99,10 @@ export default function AdvisoryRequestModal({
               <RiCheckLine className="h-8 w-8 text-green-600" />
             </div>
             <h3 className="text-xl font-semibold text-warm-grey">
-              Takk for din henvendelse!
+              {tc("successTitle")}
             </h3>
             <p className="mt-2 text-center text-warm-grey-2">
-              Vi vil kontakte deg innen 24 timer.
+              {t("successBody")}
             </p>
           </div>
         ) : (
@@ -108,57 +111,57 @@ export default function AdvisoryRequestModal({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="firstname" className="mb-2 block text-sm font-medium text-warm-grey">
-                    Fornavn *
+                    {tc("firstnameLabel")}
                   </label>
-                  <Input id="firstname" name="firstname" type="text" placeholder="Fornavn" required />
+                  <Input id="firstname" name="firstname" type="text" placeholder={tc("firstnamePlaceholder")} required />
                 </div>
                 <div>
                   <label htmlFor="lastname" className="mb-2 block text-sm font-medium text-warm-grey">
-                    Etternavn *
+                    {tc("lastnameLabel")}
                   </label>
-                  <Input id="lastname" name="lastname" type="text" placeholder="Etternavn" required />
+                  <Input id="lastname" name="lastname" type="text" placeholder={tc("lastnamePlaceholder")} required />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="email" className="mb-2 block text-sm font-medium text-warm-grey">
-                    E-post *
+                    {tc("emailLabel")}
                   </label>
-                  <Input id="email" name="email" type="email" placeholder="din@epost.no" required />
+                  <Input id="email" name="email" type="email" placeholder={tc("emailPlaceholder")} required />
                 </div>
                 <div>
                   <label htmlFor="phone" className="mb-2 block text-sm font-medium text-warm-grey">
-                    Telefon *
+                    {tc("phoneLabel")}
                   </label>
-                  <Input id="phone" name="phone" type="tel" placeholder="+47 123 45 678" required />
+                  <Input id="phone" name="phone" type="tel" placeholder={tc("phonePlaceholder")} required />
                 </div>
               </div>
               <div>
                 <label htmlFor="company" className="mb-2 block text-sm font-medium text-warm-grey">
-                  Selskap
+                  {t("companyLabel")}
                 </label>
-                <Input id="company" name="company" type="text" placeholder="Ditt selskap" />
+                <Input id="company" name="company" type="text" placeholder={t("companyPlaceholder")} />
               </div>
               <div>
                 <label htmlFor="advisoryArea" className="mb-2 block text-sm font-medium text-warm-grey">
-                  Rådgivningsområde *
+                  {t("advisoryAreaLabel")}
                 </label>
                 <Select name="advisoryArea" required>
                   <SelectTrigger id="advisoryArea">
-                    <SelectValue placeholder="Velg område" />
+                    <SelectValue placeholder={t("advisoryAreaPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="financing">Finansiering</SelectItem>
-                    <SelectItem value="strategy">Strategi</SelectItem>
-                    <SelectItem value="market">Markedsanalyse</SelectItem>
-                    <SelectItem value="valuation">Verdivurdering</SelectItem>
-                    <SelectItem value="other">Annet</SelectItem>
+                    <SelectItem value="financing">{t("advisoryAreaFinancing")}</SelectItem>
+                    <SelectItem value="strategy">{t("advisoryAreaStrategy")}</SelectItem>
+                    <SelectItem value="market">{t("advisoryAreaMarket")}</SelectItem>
+                    <SelectItem value="valuation">{t("advisoryAreaValuation")}</SelectItem>
+                    <SelectItem value="other">{t("advisoryAreaOther")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <label htmlFor="description" className="mb-2 block text-sm font-medium text-warm-grey">
-                  Beskriv ditt behov *
+                  {t("descriptionLabel")}
                 </label>
                 <textarea
                   id="description"
@@ -166,18 +169,18 @@ export default function AdvisoryRequestModal({
                   rows={4}
                   required
                   className="w-full rounded-md border border-warm-grey-1 bg-warm-white px-3 py-2 text-warm-grey shadow-sm transition-colors placeholder:text-warm-grey-2 focus:border-warm-grey focus:outline-none focus:ring-2 focus:ring-light-blue/50"
-                  placeholder="Fortell oss om ditt behov for rådgivning..."
+                  placeholder={t("descriptionPlaceholder")}
                 />
               </div>
             </div>
             <div className="mt-6">
               {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Sender..." : "Send forespørsel"}
+                {isSubmitting ? tc("submitting") : tc("submit")}
               </Button>
             </div>
             <p className="mt-4 text-center text-xs text-warm-grey-2">
-              Ved å sende inn dette skjemaet godtar du at vi kontakter deg.
+              {t("consent")}
             </p>
           </form>
         )}

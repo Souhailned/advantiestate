@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Modal from "@/components/blog/modal"
 import { RiCloseLine, RiExchangeLine, RiCheckLine } from "@remixicon/react"
 import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import { useTranslations } from "next-intl"
 import { submitCtaLead } from "@/app/actions/cta-lead"
 import { trackLeadSubmit } from "@/lib/analytics"
 import { useLeadStartOnFocus } from "@/lib/hooks/useLeadFunnel"
@@ -19,6 +20,8 @@ export default function TransactionRequestModal({
   showModal,
   setShowModal,
 }: TransactionRequestModalProps) {
+  const t = useTranslations("Modals.transaction")
+  const tc = useTranslations("Modals.common")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const onFirstFocus = useLeadStartOnFocus("service-modal", "Transaksjonshjelp")
   const [isSuccess, setIsSuccess] = useState(false)
@@ -72,7 +75,7 @@ export default function TransactionRequestModal({
         <div className="border-b border-warm-grey-1/20 bg-gradient-to-br from-light-blue/10 to-warm-white px-6 py-6">
           <button
             type="button"
-            aria-label="Lukk"
+            aria-label={tc("closeAriaLabel")}
             onClick={() => setShowModal(false)}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full text-warm-grey-2 transition-colors hover:bg-warm-grey-1/10"
           >
@@ -85,10 +88,10 @@ export default function TransactionRequestModal({
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-warm-grey">
-                Be om transaksjonshjelp
+                {t("title")}
               </h2>
               <p className="mt-1 text-sm text-warm-grey-2">
-                Vi hjelper deg med kjøp og salg av næringseiendom
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -101,10 +104,10 @@ export default function TransactionRequestModal({
               <RiCheckLine className="h-8 w-8 text-green-600" />
             </div>
             <h3 className="text-xl font-semibold text-warm-grey">
-              Takk for din henvendelse!
+              {tc("successTitle")}
             </h3>
             <p className="mt-2 text-center text-warm-grey-2">
-              Vi vil kontakte deg innen 24 timer for å diskutere din transaksjon.
+              {t("successBody")}
             </p>
           </div>
         ) : (
@@ -119,13 +122,13 @@ export default function TransactionRequestModal({
                       htmlFor="firstname"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Fornavn *
+                      {tc("firstnameLabel")}
                     </label>
                     <Input
                       id="firstname"
                       name="firstname"
                       type="text"
-                      placeholder="Fornavn"
+                      placeholder={tc("firstnamePlaceholder")}
                       required
                     />
                   </div>
@@ -134,13 +137,13 @@ export default function TransactionRequestModal({
                       htmlFor="lastname"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Etternavn *
+                      {tc("lastnameLabel")}
                     </label>
                     <Input
                       id="lastname"
                       name="lastname"
                       type="text"
-                      placeholder="Etternavn"
+                      placeholder={tc("lastnamePlaceholder")}
                       required
                     />
                   </div>
@@ -153,13 +156,13 @@ export default function TransactionRequestModal({
                       htmlFor="email"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      E-post *
+                      {tc("emailLabel")}
                     </label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="din@epost.no"
+                      placeholder={tc("emailPlaceholder")}
                       required
                     />
                   </div>
@@ -168,13 +171,13 @@ export default function TransactionRequestModal({
                       htmlFor="phone"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Telefon *
+                      {tc("phoneLabel")}
                     </label>
                     <Input
                       id="phone"
                       name="phone"
                       type="tel"
-                      placeholder="+47 123 45 678"
+                      placeholder={tc("phonePlaceholder")}
                       required
                     />
                   </div>
@@ -186,13 +189,13 @@ export default function TransactionRequestModal({
                     htmlFor="propertyAddress"
                     className="mb-2 block text-sm font-medium text-warm-grey"
                   >
-                    Eiendomsadresse *
+                    {t("addressLabel")}
                   </label>
                   <Input
                     id="propertyAddress"
                     name="propertyAddress"
                     type="text"
-                    placeholder="f.eks. Storgata 1, Bodø"
+                    placeholder={t("addressPlaceholder")}
                     required
                   />
                 </div>
@@ -204,16 +207,16 @@ export default function TransactionRequestModal({
                       htmlFor="transactionType"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Transaksjonstype *
+                      {t("transactionTypeLabel")}
                     </label>
                     <Select name="transactionType" required>
                       <SelectTrigger id="transactionType">
-                        <SelectValue placeholder="Velg type" />
+                        <SelectValue placeholder={t("transactionTypePlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="kjop">Kjøp</SelectItem>
-                        <SelectItem value="salg">Salg</SelectItem>
-                        <SelectItem value="begge">Begge deler</SelectItem>
+                        <SelectItem value="kjop">{t("transactionTypeKjop")}</SelectItem>
+                        <SelectItem value="salg">{t("transactionTypeSalg")}</SelectItem>
+                        <SelectItem value="begge">{t("transactionTypeBegge")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -222,13 +225,13 @@ export default function TransactionRequestModal({
                       htmlFor="timeline"
                       className="mb-2 block text-sm font-medium text-warm-grey"
                     >
-                      Tidsramme
+                      {t("timelineLabel")}
                     </label>
                     <Input
                       id="timeline"
                       name="timeline"
                       type="text"
-                      placeholder="f.eks. Innen 6 måneder"
+                      placeholder={t("timelinePlaceholder")}
                     />
                   </div>
                 </div>
@@ -239,14 +242,14 @@ export default function TransactionRequestModal({
                     htmlFor="estimatedValue"
                     className="mb-2 block text-sm font-medium text-warm-grey"
                   >
-                    Estimert verdi (kr)
+                    {t("estimatedValueLabel")}
                   </label>
                   <Input
                     id="estimatedValue"
                     name="estimatedValue"
                     type="text"
                     inputMode="numeric"
-                    placeholder="10 000 000"
+                    placeholder={t("estimatedValuePlaceholder")}
                   />
                 </div>
 
@@ -256,14 +259,14 @@ export default function TransactionRequestModal({
                     htmlFor="message"
                     className="mb-2 block text-sm font-medium text-warm-grey"
                   >
-                    Tilleggsinformasjon
+                    {t("messageLabel")}
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     rows={3}
                     className="w-full rounded-md border border-warm-grey-1 bg-warm-white px-3 py-2 text-warm-grey shadow-sm transition-colors placeholder:text-warm-grey-2 focus:border-warm-grey focus:outline-none focus:ring-2 focus:ring-light-blue/50"
-                    placeholder="Fortell oss mer om transaksjonen..."
+                    placeholder={t("messagePlaceholder")}
                   />
                 </div>
               </div>
@@ -276,12 +279,12 @@ export default function TransactionRequestModal({
                   disabled={isSubmitting}
                   className="w-full"
                 >
-                  {isSubmitting ? "Sender..." : "Send forespørsel"}
+                  {isSubmitting ? tc("submitting") : tc("submit")}
                 </Button>
               </div>
 
               <p className="mt-4 text-center text-xs text-warm-grey-2">
-                Ved å sende inn dette skjemaet godtar du at vi kontakter deg om din transaksjon.
+                {t("consent")}
               </p>
             </form>
           </>
