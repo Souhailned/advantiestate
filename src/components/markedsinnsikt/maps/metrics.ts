@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react"
+import { toIntlLocale } from "@/i18n/routing"
 
 export type MetricKey = "yield" | "leie" | "ledighet"
 
 export const METRICS: Record<
   MetricKey,
-  { label: string; hint: string; fmt: (v: number) => string }
+  { label: string; hint: string; fmt: (v: number, locale?: string) => string }
 > = {
   yield: {
     label: "Prime yield",
@@ -14,7 +15,7 @@ export const METRICS: Record<
   leie: {
     label: "Markedsleie",
     hint: "Prime kontorleie, kr/m²/år",
-    fmt: (v) => `${Math.round(v).toLocaleString("no-NO")} kr`,
+    fmt: (v, locale = "no") => `${Math.round(v).toLocaleString(toIntlLocale(locale))} kr`,
   },
   ledighet: {
     label: "Ledighet",

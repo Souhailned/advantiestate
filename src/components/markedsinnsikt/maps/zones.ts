@@ -1,4 +1,5 @@
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson"
+import { toIntlLocale } from "@/i18n/routing"
 
 export type ZoneSegment = "kontor" | "handel" | "logistikk"
 export interface SegmentRange { minKrM2: number; maxKrM2: number } // kr/m²/år
@@ -26,8 +27,8 @@ export interface CityZoneSet {
 }
 
 /** Formaterer et prisintervall som "2 000–3 500 kr/m²" (NBSP-tusenskilletegn, en-dash). */
-export function formatRange(r: SegmentRange): string {
-  return `${r.minKrM2.toLocaleString("no-NO")}–${r.maxKrM2.toLocaleString("no-NO")} kr/m²`
+export function formatRange(r: SegmentRange, locale = "no"): string {
+  return `${r.minKrM2.toLocaleString(toIntlLocale(locale))}–${r.maxKrM2.toLocaleString(toIntlLocale(locale))} kr/m²`
 }
 
 // Indikative prissoner — koordinater er GeoJSON [lon,lat] og konsumeres av

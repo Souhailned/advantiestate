@@ -5,6 +5,7 @@
 // (from ./marketData) as semantic tables that are always in the server HTML —
 // crawlable and citable by Google and AI engines (ChatGPT, Claude, Perplexity),
 // and a useful, accessible reference for visitors.
+import { getLocale, getTranslations } from "next-intl/server"
 import {
   CITIES,
   YIELD,
@@ -26,51 +27,53 @@ const SEGMENTS: { key: Segment; label: string }[] = [
 
 const last = (arr: number[]) => arr[arr.length - 1]
 
-// Flatten LEIE[segment][city] → latest value per (segment, city) pair.
-const leieRows = SEGMENTS.flatMap((seg) =>
-  Object.entries(LEIE[seg.key]).map(([city, values]) => ({
-    segment: seg.label,
-    city,
-    value: last(values),
-  })),
-)
+export async function MarketDataSummary() {
+  const locale = await getLocale()
+  const t = await getTranslations("Markedsinnsikt.DataSummary")
+  const tShell = await getTranslations("Markedsinnsikt.Shell")
 
-export function MarketDataSummary() {
+  // Flatten LEIE[segment][city] → latest value per (segment, city) pair.
+  const leieRows = SEGMENTS.flatMap((seg) =>
+    Object.entries(LEIE[seg.key]).map(([city, values]) => ({
+      segment: seg.label,
+      city,
+      value: last(values),
+    })),
+  )
+
   return (
     <section
       className="section section-divider"
       id="markedsdata-tall"
-      aria-label={`Markedsdata i tall, ${LATEST_QUARTER}`}
+      aria-label={t("ariaLabel", { quarter: LATEST_QUARTER })}
     >
       <div className="wrap">
         <div className="head-compact">
-          <span className="eyebrow">Markedsdata i tall · {LATEST_QUARTER}</span>
+          <span className="eyebrow">{t("eyebrow", { quarter: LATEST_QUARTER })}</span>
           <div>
             <h2>
-              Tallene, <span className="italic">i ren tekst.</span>
+              {t("title1")} <span className="italic">{t("title2")}</span>
             </h2>
             <p>
-              Nøkkeltall for næringseiendom i Nord-Norge per {LATEST_QUARTER} —
-              prime yield, markedsleie og ledighet, by for by og segment for
-              segment. Samme datagrunnlag som de interaktive grafene over.
+              {t("intro", { quarter: LATEST_QUARTER })}
             </p>
           </div>
         </div>
 
         {/* Per-by snapshot */}
-        <h3 className="mi-data-h3">Markedsoversikt per by</h3>
+        <h3 className="mi-data-h3">{t("h3CityOverview")}</h3>
         <div className="mi-tablewrap">
         <table className="mi-table">
           <caption className="sr-only">
-            Prime yield, markedsleie og ledighet for kontor per by, {LATEST_QUARTER}
+            {t("captionCity", { quarter: LATEST_QUARTER })}
           </caption>
           <thead>
             <tr>
-              <th>By</th>
-              <th className="r">Prime yield (kontor)</th>
-              <th className="r">Markedsleie kontor</th>
-              <th className="r">Kontorledighet</th>
-              <th>Kommentar</th>
+              <th>{t("thCity")}</th>
+              <th className="r">{t("thPrimeYieldOffice")}</th>
+              <th className="r">{t("thMarketRentOffice")}</th>
+              <th className="r">{t("thVacancyOffice")}</th>
+              <th>{t("thComment")}</th>
             </tr>
           </thead>
           <tbody>
@@ -88,16 +91,16 @@ export function MarketDataSummary() {
         </div>
 
         {/* Prime yield per segment */}
-        <h3 className="mi-data-h3">Prime yield per segment</h3>
+        <h3 className="mi-data-h3">{t("h3PrimeYieldSegment")}</h3>
         <div className="mi-tablewrap">
         <table className="mi-table">
           <caption className="sr-only">
-            Prime yield per segment i Nord-Norge, {LATEST_QUARTER}
+            {t("captionPrimeYield", { quarter: LATEST_QUARTER })}
           </caption>
           <thead>
             <tr>
-              <th>Segment</th>
-              <th className="r">Prime yield {LATEST_QUARTER}</th>
+              <th>{t("thSegment")}</th>
+              <th className="r">{t("thPrimeYieldQuarter", { quarter: LATEST_QUARTER })}</th>
             </tr>
           </thead>
           <tbody>
@@ -112,17 +115,17 @@ export function MarketDataSummary() {
         </div>
 
         {/* Markedsleie per segment & by */}
-        <h3 className="mi-data-h3">Markedsleie per by og segment</h3>
+        <h3 className="mi-data-h3">{t("h3RentCitySegment")}</h3>
         <div className="mi-tablewrap">
         <table className="mi-table">
           <caption className="sr-only">
-            Prime markedsleie i kr/m²/år per by og segment, {LATEST_QUARTER}
+            {t("captionRent", { quarter: LATEST_QUARTER })}
           </caption>
           <thead>
             <tr>
-              <th>Segment</th>
-              <th>By</th>
-              <th className="r">Markedsleie {LATEST_QUARTER}</th>
+              <th>{t("thSegment")}</th>
+              <th>{t("thCity")}</th>
+              <th className="r">{t("thRentQuarter", { quarter: LATEST_QUARTER })}</th>
             </tr>
           </thead>
           <tbody>
@@ -130,7 +133,7 @@ export function MarketDataSummary() {
               <tr key={`${row.segment}-${row.city}`}>
                 <td>{row.segment}</td>
                 <td>{row.city}</td>
-                <td className="r">{fmtNum(row.value)} kr/m²/år</td>
+                <td className="r">{fmtNum(row.value, locale)} {t("rentUnit")}</td>
               </tr>
             ))}
           </tbody>
@@ -138,18 +141,18 @@ export function MarketDataSummary() {
         </div>
 
         {/* Ledighet per by & segment */}
-        <h3 className="mi-data-h3">Ledighet per by og segment</h3>
+        <h3 className="mi-data-h3">{t("h3VacancyCitySegment")}</h3>
         <div className="mi-tablewrap">
         <table className="mi-table">
           <caption className="sr-only">
-            Andel ledig næringsareal i prosent per by og segment, {LATEST_QUARTER}
+            {t("captionVacancy", { quarter: LATEST_QUARTER })}
           </caption>
           <thead>
             <tr>
-              <th>By</th>
-              <th className="r">Kontor</th>
-              <th className="r">Handel</th>
-              <th className="r">Logistikk</th>
+              <th>{t("thCity")}</th>
+              <th className="r">{tShell("segKontor")}</th>
+              <th className="r">{tShell("segHandel")}</th>
+              <th className="r">{tShell("segLogistikk")}</th>
             </tr>
           </thead>
           <tbody>
@@ -166,32 +169,32 @@ export function MarketDataSummary() {
         </div>
 
         {/* Recent transactions */}
-        <h3 className="mi-data-h3">Utvalgte transaksjoner 2025</h3>
+        <h3 className="mi-data-h3">{t("h3Transactions")}</h3>
         <div className="mi-tablewrap">
         <table className="mi-table">
           <caption className="sr-only">
-            Utvalgte næringseiendomstransaksjoner i Nord-Norge, 2025
+            {t("captionTransactions")}
           </caption>
           <thead>
             <tr>
-              <th>Dato</th>
-              <th>Eiendom</th>
-              <th>Segment</th>
-              <th className="r">Verdi</th>
-              <th className="r">Yield</th>
+              <th>{t("thDate")}</th>
+              <th>{t("thProperty")}</th>
+              <th>{t("thSegment")}</th>
+              <th className="r">{t("thValue")}</th>
+              <th className="r">{t("thYield")}</th>
             </tr>
           </thead>
           <tbody>
-            {TX.map((t) => (
-              <tr key={t.name}>
-                <td>{t.date}</td>
+            {TX.map((tx) => (
+              <tr key={tx.name}>
+                <td>{tx.date}</td>
                 <td>
-                  {t.name}
-                  <span className="mi-data-sub"> · {t.loc}</span>
+                  {tx.name}
+                  <span className="mi-data-sub"> · {tx.loc}</span>
                 </td>
-                <td>{t.seg}</td>
-                <td className="r">{t.value}</td>
-                <td className="r">{t.yield}</td>
+                <td>{tx.seg}</td>
+                <td className="r">{tx.value}</td>
+                <td className="r">{tx.yield}</td>
               </tr>
             ))}
           </tbody>
@@ -200,10 +203,9 @@ export function MarketDataSummary() {
 
         <div className="mi-footnote" style={{ marginTop: 24 }}>
           <span className="source">
-            Tall er indikative og reflekterer prime kvalitet. Kilde: Advanti
-            markedsdata. For en konkret vurdering av din eiendom — ta kontakt.
+            {t("footnote")}
           </span>
-          <span>{LATEST_QUARTER} · Advanti</span>
+          <span>{t("footnoteStamp", { quarter: LATEST_QUARTER })}</span>
         </div>
       </div>
     </section>

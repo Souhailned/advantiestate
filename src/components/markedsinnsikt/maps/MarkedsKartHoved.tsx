@@ -14,6 +14,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties } from "react"
+import { useTranslations, useLocale } from "next-intl"
 
 import { SeOgsa } from "@/components/site/SeOgsa"
 import { MapErrorBoundary } from "@/components/markedsinnsikt/MapErrorBoundary"
@@ -65,22 +66,33 @@ const CITIES: KartCity[] = LATEST_RELEASE.cities.map((c) => ({
 // next/dynamic med ssr:false må kalles i en "use client"-komponent — OK her.
 // Høydereserverende loading-flate hindrer CLS (mi-map-leaflet setter 620/420px).
 
+// Loading placeholder — uses useTranslations for the "Loading map …" text.
+// next/dynamic's loading option renders before the component mounts, so we
+// can't use hooks directly in the loading function. A tiny wrapper component
+// solves this (it is a client component itself).
+function MapLoading() {
+  const t = useTranslations("Markedsinnsikt.Kart")
+  return (
+    <div className="mi-map-loading" style={{ height: "100%", width: "100%" }}>
+      <span>{t("loadingMap")}</span>
+    </div>
+  )
+}
+
 const MarkedsKartLeafletCelle = dynamic(
   () =>
     import("./MarkedsKartLeafletCelle").then((m) => m.MarkedsKartLeafletCelle),
   {
     ssr: false,
-    loading: () => (
-      <div className="mi-map-loading" style={{ height: "100%", width: "100%" }}>
-        <span>Laster kart …</span>
-      </div>
-    ),
+    loading: () => <MapLoading />,
   },
 )
 
 // ── Komponent ────────────────────────────────────────────────────────────────
 
 export function MarkedsKartHoved() {
+  const t = useTranslations("Markedsinnsikt.Kart")
+  const locale = useLocale()
   const [metric, pickMetric] = useMetricHash()
   const [selected, setSelected] = useState<string>("bodo")
   const [pinnedZoneId, setPinnedZoneId] = useState<string | null>(null)
@@ -160,10 +172,10 @@ export function MarkedsKartHoved() {
         lat: c.lat,
         lon: c.lon,
         norm: norm(c),
-        formattedValue: m.fmt(c.values[metric]),
-        ariaLabel: `${c.name}: ${m.fmt(c.values[metric])}`,
+        formattedValue: m.fmt(c.values[metric], locale),
+        ariaLabel: `${c.name}: ${m.fmt(c.values[metric], locale)}`,
       })),
-    [metric, norm, m],
+    [metric, norm, m, locale],
   )
 
   // Nullstill pin + hover når zoom faller under sone-terskelen. (Bybytte
@@ -233,7 +245,7 @@ export function MarkedsKartHoved() {
         <div className="mi-map-leaflet">
           {/* Pills-overlay absolutt topp-venstre — rendret i SSR for CLS/SEO */}
           <div className="mi-map-pills-overlay">
-            <div className="mi-metric-pills" role="group" aria-label="Nøkkeltall">
+            <div className="mi-metric-pills" role="group" aria-label={t("ariaMetrics")}>
               {METRIC_KEYS.map((key) => (
                 <button
                   key={key}
@@ -241,12 +253,12 @@ export function MarkedsKartHoved() {
                   aria-pressed={metric === key}
                   onClick={() => pickMetric(key)}
                 >
-                  {METRICS[key].label}
+                  {key === "yield" ? t("metricLabelYield") : key === "leie" ? t("metricLabelLeie") : t("metricLabelLedighet")}
                 </button>
               ))}
             </div>
             <div className="mi-map-legend">
-              <span className="lg-cap">{m.label}</span>
+              <span className="lg-cap">{metric === "yield" ? t("metricLabelYield") : metric === "leie" ? t("metricLabelLeie") : t("metricLabelLedighet")}</span>
               <span
                 className="lg-bar"
                 style={{
@@ -254,7 +266,7 @@ export function MarkedsKartHoved() {
                 }}
               />
               <span className="lg-range">
-                <b>{m.fmt(min)}</b> lav · <b>{m.fmt(max)}</b> høy
+                <b>{m.fmt(min, locale)}</b> {t("legendLow")} · <b>{m.fmt(max, locale)}</b> {t("legendHigh")}
               </span>
             </div>
           </div>
@@ -280,7 +292,7 @@ export function MarkedsKartHoved() {
             <div
               className="mi-rail-left"
               role={zonesActive ? "group" : undefined}
-              aria-label={zonesActive ? "Velg prissone" : undefined}
+              aria-label={zonesActive ? t("ariaSelectZone") : undefined}
             >
               {zonesActive &&
                 publishedZoneProps.map((z) => (
@@ -304,8 +316,8 @@ export function MarkedsKartHoved() {
                   onClick={() => setShowCadastre((v) => !v)}
                 >
                   {showCadastre
-                    ? "Skjul eiendomsgrenser"
-                    : "Vis eiendomsgrenser"}
+                    ? t("hideCadastre")
+                    : t("showCadastre")}
                 </button>
               )}
               {zoom > 6 && (
@@ -314,7 +326,7 @@ export function MarkedsKartHoved() {
                   className="mi-rail-btn"
                   onClick={handleReset}
                 >
-                  Hele Nord-Norge
+                  {t("resetView")}
                 </button>
               )}
             </div>
@@ -325,14 +337,14 @@ export function MarkedsKartHoved() {
             <div className="mi-zone-mini">
               <span className="mi-zone-mini-name">{activeZone.name}</span>
               <span className="mi-zone-mini-kontor">
-                Kontor {formatRange(activeZone.segments.kontor)}
+                {t("zoneKontor")} {formatRange(activeZone.segments.kontor, locale)}
               </span>
               <a
                 href="#mi-map-info"
                 className="mi-zone-mini-link"
                 onClick={scrollToPanel}
               >
-                Se detaljer
+                {t("seeDetails")}
               </a>
             </div>
           )}
@@ -345,7 +357,7 @@ export function MarkedsKartHoved() {
           aria-live="polite"
           aria-label={`Markedsdetaljer for ${selectedCity.name}`}
         >
-          <div className="city-label">Marked · {selectedCity.name}</div>
+          <div className="city-label">{t("marketLabel", { city: selectedCity.name })}</div>
           <h3>{selectedCity.name}</h3>
           <div className="city-note">{selectedCity.note}</div>
 
@@ -356,13 +368,13 @@ export function MarkedsKartHoved() {
             >
               <span className="l">
                 {key === "yield"
-                  ? "Prime yield kontor"
+                  ? t("statPrimeYield")
                   : key === "leie"
-                    ? "Markedsleie kontor"
-                    : "Kontorledighet"}
+                    ? t("statMarketRent")
+                    : t("statVacancy")}
               </span>
               <span className="v">
-                {METRICS[key].fmt(selectedCity.values[key])}
+                {METRICS[key].fmt(selectedCity.values[key], locale)}
               </span>
             </div>
           ))}
@@ -374,11 +386,11 @@ export function MarkedsKartHoved() {
               className="btn btn-dark btn-sm mi-map-info-zone-cta"
               onClick={handleZoneViewCta}
             >
-              Se prissoner i {selectedCity.name}
+              {t("seePriceZones", { city: selectedCity.name })}
             </button>
           ) : (
             <p className="mi-map-info-zone-note">
-              Prissoner finnes foreløpig kun for Bodø — flere byer kommer.
+              {t("noZonesNote")}
             </p>
           )}
 
@@ -386,24 +398,24 @@ export function MarkedsKartHoved() {
           {activeZone && zonesActive && activeZone.segments && (
             <div className="mi-zone-block">
               <div className="mi-zone-eyebrow">
-                Prissone · {activeZone.name}
+                {t("zoneEyebrow", { name: activeZone.name })}
               </div>
               <div className="mi-zone-row">
-                <span className="l">Kontor</span>
+                <span className="l">{t("zoneKontor")}</span>
                 <span className="v">
-                  {formatRange(activeZone.segments.kontor)}
+                  {formatRange(activeZone.segments.kontor, locale)}
                 </span>
               </div>
               <div className="mi-zone-row">
-                <span className="l">Handel</span>
+                <span className="l">{t("zoneHandel")}</span>
                 <span className="v">
-                  {formatRange(activeZone.segments.handel)}
+                  {formatRange(activeZone.segments.handel, locale)}
                 </span>
               </div>
               <div className="mi-zone-row">
-                <span className="l">Logistikk</span>
+                <span className="l">{t("zoneLogistikk")}</span>
                 <span className="v">
-                  {formatRange(activeZone.segments.logistikk)}
+                  {formatRange(activeZone.segments.logistikk, locale)}
                 </span>
               </div>
               {activeZone.sourceNote && (
@@ -414,7 +426,7 @@ export function MarkedsKartHoved() {
                 href="/tjenester/verdivurdering"
                 className="mi-zone-valuation-link"
               >
-                Indikative tall — bestill en konkret verdivurdering
+                {t("zoneValuationLink")}
               </Link>
             </div>
           )}
@@ -424,25 +436,25 @@ export function MarkedsKartHoved() {
               href={`/naringsmegler/${BROKER_SLUG_BY_NAME[selectedCity.name] ?? selectedCity.id}`}
               className="btn btn-dark btn-sm"
             >
-              Næringsmegler i {selectedCity.name}{" "}
+              {t("brokerLink", { city: selectedCity.name })}{" "}
               <span className="arrow">→</span>
             </Link>
             <Link href="/analyseportal" className="btn btn-outline btn-sm">
-              Se i Analyseportalen
+              {t("seeInPortal")}
             </Link>
           </div>
 
           {/* Se også — redaksjonell kryss­lenke­blokk for aktiv by. */}
           <SeOgsa
-            heading={`Gå videre med ${selectedCity.name}`}
+            heading={t("seOgsaHeading", { city: selectedCity.name })}
             from="kart"
             links={[
               {
                 href: `/naringsmegler/${BROKER_SLUG_BY_NAME[selectedCity.name] ?? selectedCity.id}`,
-                label: `Næringsmegler i ${selectedCity.name}`,
+                label: t("brokerLink", { city: selectedCity.name }),
               },
-              { href: "/help/article/prime-yield", label: "Prime yield forklart" },
-              { href: "/markedsrapport", label: "Markedsrapport" },
+              { href: "/help/article/prime-yield", label: t("linkPrimeYield") },
+              { href: "/markedsrapport", label: t("linkMarkedsrapport") },
             ]}
           />
         </div>
@@ -451,32 +463,32 @@ export function MarkedsKartHoved() {
       {/* Disclaimer under kartflaten — vises kun når soner er aktive */}
       {zonesActive && zoneSet && (
         <p className="mi-kart-disclaimer mi-kart-disclaimer--static">
-          {zoneSet.disclaimer}
+          {t("disclaimerBodo")}
         </p>
       )}
 
       {/* ── Rangert tabell ────────────────────────────────────────────────── */}
       <div className="mi-rank">
         <div className="rank-head">
-          <span>Rangert · {m.label.toLowerCase()}</span>
-          <span>{m.hint}</span>
+          <span>{t("rankHeader", { metric: (metric === "yield" ? t("metricLabelYield") : metric === "leie" ? t("metricLabelLeie") : t("metricLabelLedighet")).toLowerCase() })}</span>
+          <span>{metric === "yield" ? t("metricHintYield") : metric === "leie" ? t("metricHintLeie") : t("metricHintLedighet")}</span>
         </div>
         <table className="mi-rank-table">
           <thead>
             <tr>
-              <th>Rang</th>
-              <th>Marked</th>
-              <th>{METRICS[metric].label}</th>
+              <th>{t("rankColRank")}</th>
+              <th>{t("rankColMarket")}</th>
+              <th>{metric === "yield" ? t("metricLabelYield") : metric === "leie" ? t("metricLabelLeie") : t("metricLabelLedighet")}</th>
               {METRIC_KEYS.filter((k) => k !== metric).map((k) => (
                 <th key={k} className="mi-rank-secondary">
-                  {METRICS[k].label}
+                  {k === "yield" ? t("metricLabelYield") : k === "leie" ? t("metricLabelLeie") : t("metricLabelLedighet")}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {ranked.map((c, i) => {
-              const t = norm(c)
+              const normVal = norm(c)
               return (
                 <tr
                   key={c.id}
@@ -488,7 +500,7 @@ export function MarkedsKartHoved() {
                       type="button"
                       className="mi-rank-citybtn"
                       onClick={() => handleSelectCity(c.id)}
-                      aria-label={`${c.name}, velg by`}
+                      aria-label={t("rankColSelectCity", { name: c.name })}
                       aria-pressed={c.id === selected}
                     >
                       {c.name}
@@ -499,16 +511,16 @@ export function MarkedsKartHoved() {
                       <span
                         className="rb-fill"
                         style={{
-                          "--fill": (12 + t * 88) / 100,
-                          background: lerpColor(RAMP_LOW, RAMP_HIGH, t),
+                          "--fill": (12 + normVal * 88) / 100,
+                          background: lerpColor(RAMP_LOW, RAMP_HIGH, normVal),
                         } as CSSProperties}
                       />
                     </span>
-                    <span className="rv">{m.fmt(c.values[metric])}</span>
+                    <span className="rv">{m.fmt(c.values[metric], locale)}</span>
                   </td>
                   {METRIC_KEYS.filter((k) => k !== metric).map((k) => (
                     <td key={k} className="mi-rank-secondary">
-                      {METRICS[k].fmt(c.values[k])}
+                      {METRICS[k].fmt(c.values[k], locale)}
                     </td>
                   ))}
                 </tr>

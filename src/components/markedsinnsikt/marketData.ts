@@ -6,6 +6,7 @@
 // server and client components. Ported verbatim from markedsinnsikt.js.
 import type { MapCity } from "./types"
 import { LATEST_RELEASE } from "./marketReleases"
+import { toIntlLocale } from "@/i18n/routing"
 
 /** Current quarter label — derived from the versioned release register. */
 export const LATEST_QUARTER = LATEST_RELEASE.quarter
@@ -203,12 +204,12 @@ export const TX = [
 
 export const fmtNoComma = (v: number) => v.toFixed(2).replace(".", ",")
 export const fmtPct1 = (v: number) => `${v.toFixed(1).replace(".", ",")} %`
-export const fmtNum = (v: number) => v.toLocaleString("no-NO")
+export const fmtNum = (v: number, locale = "no") => v.toLocaleString(toIntlLocale(locale))
 /** Prime yield display string, e.g. "6,35 %" (two decimal places). */
 export const fmtYieldPct = (v: number) => `${fmtNoComma(v)} %`
 /** Market rent display string, e.g. "2 400 kr/m²" (regular-space thousands). */
-export const fmtLeieKrM2 = (v: number) =>
-  `${v.toLocaleString("no-NO").replace(/ /g, " ")} kr/m²`
+export const fmtLeieKrM2 = (v: number, locale = "no") =>
+  `${v.toLocaleString(toIntlLocale(locale)).replace(/ /g, " ")} kr/m²`
 
 // ---------------------------------------------------------------------------
 // CITIES — derived from the versioned release register

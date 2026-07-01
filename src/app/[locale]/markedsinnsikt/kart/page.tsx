@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server"
 import { MarkedsKartHoved } from "@/components/markedsinnsikt/maps/MarkedsKartHoved"
 import { LATEST_RELEASE } from "@/components/markedsinnsikt/marketReleases"
 import { CtaStrip } from "@/components/site/CtaStrip"
@@ -6,11 +7,11 @@ import { constructMetadata } from "@/lib/utils"
 import { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Markedsinnsikt.Kart")
   return constructMetadata({
     path: "/markedsinnsikt/kart",
-    title: "Markedskart Nord-Norge — næringseiendom by for by | Advanti Estate",
-    description:
-      "Interaktivt markedskart for næringseiendom i Nord-Norge. Sammenlign yield, leie og ledighet by for by — Tromsø, Bodø, Alta, Narvik, Harstad og Mo i Rana — pluss indikative prissoner i Bodø.",
+    title: t("metadataTitle"),
+    description: t("metadataDescription"),
   })
 }
 
@@ -26,39 +27,41 @@ function publishedStamp(): string {
   return `OPPDATERT ${d.getUTCDate()}. ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
-export default function MarkedskartPage() {
+export default async function MarkedskartPage() {
+  const t = await getTranslations("Markedsinnsikt.Kart")
+
   return (
     <>
       <SubHero
         crumb={[
-          { label: "Markedsinnsikt", href: "/markedsinnsikt" },
-          { label: "Markedskart" },
+          { label: t("crumbMarkedsinnsikt"), href: "/markedsinnsikt" },
+          { label: t("crumbMarkedskart") },
         ]}
-        eyebrow="Markedskart · Nord-Norge"
+        eyebrow={t("eyebrow")}
         title={
           <>
-            Markedet, <br />
-            <span className="italic">by for by.</span>
+            {t("titleLine1")} <br />
+            <span className="italic">{t("titleLine2")}</span>
           </>
         }
-        lede="Velg et nøkkeltall og se hvordan næringseiendomsmarkedet varierer på tvers av landsdelen. Boblene viser nivået for hver by — klikk for detaljer og direkte vei videre til byens megler eller full analyse."
+        lede={t("lede")}
       >
         <div className="km-intro-meta">
           <div>
             <span className="v">{LATEST_RELEASE.cities.length}</span>
-            <span className="l">Byer dekket</span>
+            <span className="l">{t("metaCities")}</span>
           </div>
           <div>
             <span className="v">3</span>
-            <span className="l">Nøkkeltall</span>
+            <span className="l">{t("metaKeyFigures")}</span>
           </div>
           <div>
             <span className="v">+1 400</span>
-            <span className="l">Eiendommer sporet</span>
+            <span className="l">{t("metaProperties")}</span>
           </div>
           <div>
             <span className="v">{LATEST_RELEASE.quarter}</span>
-            <span className="l">Oppdatert</span>
+            <span className="l">{t("metaUpdated")}</span>
           </div>
         </div>
       </SubHero>
@@ -75,15 +78,15 @@ export default function MarkedskartPage() {
                 className="eyebrow"
                 style={{ marginBottom: 18, display: "inline-flex" }}
               >
-                Interaktivt kart
+                {t("sectionEyebrow")}
               </span>
               <h2>
-                Klikk en by. <span className="italic">Les markedet.</span>
+                {t("sectionTitle1")} <span className="italic">{t("sectionTitle2")}</span>
               </h2>
             </div>
             <div className="updated">
               <span className="live">{publishedStamp()}</span>
-              <span>Yield, leie og ledighet — {LATEST_RELEASE.quarter}</span>
+              <span>{t("updatedYieldLeieLedighet", { quarter: LATEST_RELEASE.quarter })}</span>
             </div>
           </div>
 
@@ -91,16 +94,10 @@ export default function MarkedskartPage() {
 
           <div className="mi-footnote">
             <span className="source">
-              Kartgrunnlag: OpenStreetMap/CARTO — boblene viser valgt
-              nøkkeltall by for by. Prissoner i Bodø er basert på Advantis
-              egne transaksjons- og leiedata, segmentert på kontor, handel og
-              logistikk; toggle «Vis eiendomsgrenser» aktiverer Kartverkets
-              matrikkellag. Tallene er indikative estimater og erstatter ikke
-              en konkret verdivurdering.
+              {t("footnoteSource")}
             </span>
             <span>
-              {LATEST_RELEASE.cities.length} byer · {LATEST_RELEASE.quarter} ·
-              indikative tall
+              {t("footnoteSummary", { count: LATEST_RELEASE.cities.length, quarter: LATEST_RELEASE.quarter })}
             </span>
           </div>
         </div>
@@ -110,44 +107,37 @@ export default function MarkedskartPage() {
       <section className="section">
         <div className="wrap">
           <div className="head-compact">
-            <span className="eyebrow">Slik leser du kartet</span>
+            <span className="eyebrow">{t("insightsEyebrow")}</span>
             <div>
               <h2>
-                Tre mønstre <span className="italic">verdt å merke seg.</span>
+                {t("insightsTitle1")} <span className="italic">{t("insightsTitle2")}</span>
               </h2>
               <p>
-                Det geografiske bildet forteller mer enn en tabell. Her er
-                hovedtrekkene per {LATEST_RELEASE.quarter}.
+                {t("insightsIntro", { quarter: LATEST_RELEASE.quarter })}
               </p>
             </div>
           </div>
 
           <div className="mi-insights">
             <div className="mi-insight">
-              <div className="ipre">01 — Yield</div>
-              <h3>Avkastningskravet stiger nordover og innover.</h3>
+              <div className="ipre">{t("insight01Pre")}</div>
+              <h3>{t("insight01Title")}</h3>
               <p>
-                Tromsø og Bodø har de laveste yieldene — størst likviditet og
-                dypest leietakermarked. Narvik og Mo i Rana ligger høyest, der
-                færre transaksjoner gir høyere risikopåslag.
+                {t("insight01Body")}
               </p>
             </div>
             <div className="mi-insight">
-              <div className="ipre">02 — Leie</div>
-              <h3>Leienivået følger befolknings­tyngden.</h3>
+              <div className="ipre">{t("insight02Pre")}</div>
+              <h3>{t("insight02Title")}</h3>
               <p>
-                Prime kontorleie er klart høyest i Tromsø, fulgt av Bodø.
-                Forskjellen til de mindre byene er betydelig — et speil av
-                etterspørsel fra offentlig sektor og privat næringsliv.
+                {t("insight02Body")}
               </p>
             </div>
             <div className="mi-insight">
-              <div className="ipre">03 — Ledighet</div>
-              <h3>De største markedene er strammest.</h3>
+              <div className="ipre">{t("insight03Pre")}</div>
+              <h3>{t("insight03Title")}</h3>
               <p>
-                Tromsø har lavest ledighet og dermed mest press på leiene.
-                Narvik høyest — men det handler mer om eldre bygningsmasse enn
-                manglende etterspørsel etter klasse A.
+                {t("insight03Body")}
               </p>
             </div>
           </div>
@@ -155,16 +145,16 @@ export default function MarkedskartPage() {
       </section>
 
       <CtaStrip
-        eyebrow="Vil du grave dypere?"
+        eyebrow={t("ctaEyebrow")}
         title={
           <>
-            Hele tidsserien <br />
-            <span className="italic">i Analyseportalen.</span>
+            {t("ctaTitle1")} <br />
+            <span className="italic">{t("ctaTitle2")}</span>
           </>
         }
-        sub="Kartet viser øyeblikksbildet. I Analyseportalen finner du utviklingen kvartal for kvartal, alle segmenter og byer — med prognoser og nedlastbare data."
-        primary={{ label: "Åpne Analyseportalen", href: "/analyseportal" }}
-        secondary={{ label: "Bestill markedsrapport", href: "/kontakt" }}
+        sub={t("ctaSub")}
+        primary={{ label: t("ctaPrimary"), href: "/analyseportal" }}
+        secondary={{ label: t("ctaSecondary"), href: "/kontakt" }}
       />
     </>
   )

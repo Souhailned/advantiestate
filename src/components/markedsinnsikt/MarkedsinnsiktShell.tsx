@@ -7,6 +7,7 @@
 import { Fragment, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
+import { useTranslations, useLocale } from "next-intl"
 import { SeOgsa } from "@/components/site/SeOgsa"
 import { MapErrorBoundary } from "./MapErrorBoundary"
 import { trackEvent } from "@/lib/analytics"
@@ -78,12 +79,13 @@ const SECTOR_COLORS = [
 // ════════════════════════════════════════════════════════════════════════
 // SE OGSÅ — Gå dypere (data-sektorene yield/leie/tx/ledighet)
 // Delt konstant — alle fire sektorvisninger bruker de samme tre lenkene.
+// Label tekster hentes fra translations (Shell.gaDypere*) i komponenten.
 // ════════════════════════════════════════════════════════════════════════
 
-const GA_DYPERE_LINKS = [
-  { href: "/markedsinnsikt/kart", label: "Markedskartet" },
-  { href: "/markedsrapport", label: "Markedsrapport" },
-  { href: "/help/article/prime-yield", label: "Prime yield forklart" },
+const GA_DYPERE_HREFS = [
+  "/markedsinnsikt/kart",
+  "/markedsrapport",
+  "/help/article/prime-yield",
 ]
 
 type SectorId =
@@ -94,26 +96,10 @@ type SectorId =
   | "kart"
   | "rapporter"
 
-const SECTORS: { id: SectorId; label: string; pre: string }[] = [
-  { id: "yield", label: "Yield & renter", pre: "01" },
-  { id: "leie", label: "Markedsleie", pre: "02" },
-  { id: "tx", label: "Transaksjoner", pre: "03" },
-  { id: "ledighet", label: "Ledighet", pre: "04" },
-  { id: "kart", label: "Markedskart", pre: "05" },
-  { id: "rapporter", label: "Rapporter & analyser", pre: "06" },
-]
+const SECTOR_IDS: SectorId[] = ["yield", "leie", "tx", "ledighet", "kart", "rapporter"]
 
-const SUB_TABS: { id: Segment; label: string }[] = [
-  { id: "kontor", label: "Kontor" },
-  { id: "handel", label: "Handel" },
-  { id: "logistikk", label: "Logistikk" },
-]
-
-const SEG_LABELS: Record<Segment, string> = {
-  kontor: "kontor",
-  handel: "handel",
-  logistikk: "logistikk",
-}
+// Sub-tab segment ids — labels come from translations (Shell.seg*) in components.
+const SUB_TAB_IDS: Segment[] = ["kontor", "handel", "logistikk"]
 
 // ════════════════════════════════════════════════════════════════════════
 // MARKEDSINNSIKT v2 — range windowing + interactive legend
@@ -123,11 +109,11 @@ const SEG_LABELS: Record<Segment, string> = {
 // no forecast/placeholder data (the v2 "Prognose 2026" toggle is deferred to
 // TODOS.md until verified forecast numbers exist).
 
-const RANGES: { id: "3y" | "5y"; label: string; quarters: number }[] = [
-  { id: "3y", label: "3 år", quarters: 12 },
-  { id: "5y", label: "5 år", quarters: 20 },
+const RANGE_IDS: { id: "3y" | "5y"; quarters: number }[] = [
+  { id: "3y", quarters: 12 },
+  { id: "5y", quarters: 20 },
 ]
-type RangeId = (typeof RANGES)[number]["id"]
+type RangeId = (typeof RANGE_IDS)[number]["id"]
 
 // Keep the last `n` entries (most recent quarters). The historical series spans
 // exactly five years (20 quarters), so "5 år" shows everything and "3 år"
@@ -192,15 +178,22 @@ function SegmentTabs<T extends string>({
 function RangeSelector({
   value,
   onChange,
+  ariaLabel,
 }: {
   value: RangeId
   onChange: (id: RangeId) => void
+  ariaLabel: string
 }) {
+  const t = useTranslations("Markedsinnsikt.Shell")
+  const ranges = RANGE_IDS.map((r) => ({
+    ...r,
+    label: r.id === "3y" ? t("range3y") : t("range5y"),
+  }))
   return (
     <SegmentTabs
       className="miv-range"
-      ariaLabel="Tidsrom"
-      items={RANGES}
+      ariaLabel={ariaLabel}
+      items={ranges}
       value={value}
       onChange={onChange}
     />
@@ -246,17 +239,22 @@ function SegmentControls({
   range: RangeId
   setRange: (r: RangeId) => void
 }) {
+  const t = useTranslations("Markedsinnsikt.Shell")
+  const subTabs = SUB_TAB_IDS.map((id) => ({
+    id,
+    label: id === "kontor" ? t("segKontor") : id === "handel" ? t("segHandel") : t("segLogistikk"),
+  }))
   return (
     <div className="miv-controls">
       <SegmentTabs
         className="mi-subtabs"
-        ariaLabel="Visning"
-        items={SUB_TABS}
+        ariaLabel={t("ariaViewing")}
+        items={subTabs}
         value={sub}
         onChange={setSub}
       />
       <div className="miv-spacer" />
-      <RangeSelector value={range} onChange={setRange} />
+      <RangeSelector value={range} onChange={setRange} ariaLabel={t("ariaTimeRange")} />
     </div>
   )
 }
@@ -296,11 +294,12 @@ function InteractiveLegend({
   isLocked: (k: string) => boolean
   toggle: (k: string) => void
 }) {
+  const t = useTranslations("Markedsinnsikt.Shell")
   return (
     <div
       className="mi-chart-legend"
       role="group"
-      aria-label="Vis eller skjul serier i grafen"
+      aria-label={t("ariaLegend")}
     >
       {items.map((it) => (
         <button
@@ -335,6 +334,7 @@ function InteractiveLegend({
 // ════════════════════════════════════════════════════════════════════════
 
 function YieldView() {
+  const t = useTranslations("Markedsinnsikt.Shell")
   const [sub, setSub] = useState<Segment>("kontor")
   const [range, setRange] = useState<RangeId>("5y")
   const yieldData = YIELD[sub]
@@ -345,11 +345,11 @@ function YieldView() {
 
   // Clickable legend keys must match the chart series `name`s below.
   const legendItems: LegendItem[] = [
-    { key: "Prime yield", label: "Prime yield", color: "var(--warm-grey)" },
-    { key: "5 år SWAP", label: "5 år SWAP", color: "var(--warm-grey-85)" },
+    { key: "Prime yield", label: t("yieldLegendPrime"), color: "var(--warm-grey)" },
+    { key: "5 år SWAP", label: t("yieldLegendSwap"), color: "var(--warm-grey-85)" },
     {
       key: "10 år statsobl.",
-      label: "10 år statsobl.",
+      label: t("yieldLegendGov"),
       color: "var(--warm-grey-85)",
       dashed: true,
     },
@@ -358,23 +358,28 @@ function YieldView() {
 
   // Range only windows the plotted series; the headline figure and the table
   // below always reflect the latest actual quarter.
-  const qn = RANGES.find((r) => r.id === range)?.quarters ?? 20
+  const qn = RANGE_IDS.find((r) => r.id === range)?.quarters ?? 20
 
   const segments: { key: Segment; label: string; color: string }[] = [
-    { key: "kontor", label: "Kontor", color: "var(--warm-grey)" },
-    { key: "handel", label: "Handel", color: "var(--accent)" },
-    { key: "logistikk", label: "Logistikk", color: "var(--warm-grey-85)" },
+    { key: "kontor", label: t("segKontor"), color: "var(--warm-grey)" },
+    { key: "handel", label: t("segHandel"), color: "var(--accent)" },
+    { key: "logistikk", label: t("segLogistikk"), color: "var(--warm-grey-85)" },
   ]
+
+  const gaDypereLinks = GA_DYPERE_HREFS.map((href, i) => ({
+    href,
+    label: i === 0 ? t("gaDypereMarkedskart") : i === 1 ? t("gaDypereMarkedsrapport") : t("gaDyperePrimeYield"),
+  }))
 
   return (
     <div>
       <SectionHead
-        eyebrow="01 · Yield & renter"
-        source="Kilde: Advanti markedsdata"
+        eyebrow={t("yieldEyebrow")}
+        source={t("yieldSource")}
         heading={
           <>
-            Yield mot rente­markedet,{" "}
-            <span className="italic">kvartal for kvartal.</span>
+            {t("yieldHeading1")}{" "}
+            <span className="italic">{t("yieldHeading2")}</span>
           </>
         }
       />
@@ -384,16 +389,16 @@ function YieldView() {
       <div className="mi-chart-card">
         <div className="mi-chart-head">
           <div>
-            <h3>Prime yield, Tromsø sentrum</h3>
+            <h3>{t("yieldChartTitle")}</h3>
             <div className="focus-val">
               <span className="val-num">{fmtNoComma(last)}</span>
-              <span className="unit">%</span>
+              <span className="unit">{t("yieldUnit")}</span>
             </div>
             <div className="focus-delta delta-bps">
               <span className={isUp ? "up" : "down"}>
-                {isUp ? "▲" : "▼"} {Math.abs(bps)} bps
+                {isUp ? "▲" : "▼"} {t("yieldDeltaBps", { count: Math.abs(bps) })}
               </span>{" "}
-              siste 12 mnd
+              {t("yieldLast12m")}
             </div>
           </div>
           <InteractiveLegend
@@ -405,7 +410,7 @@ function YieldView() {
         </div>
         <div className="miv-chart">
           <MarketLineChart
-            ariaLabel="Prime yield mot 5 år SWAP og 10 år statsobligasjon, kvartalsvis 2021–2025"
+            ariaLabel={t("yieldAriaChart")}
             labels={windowTail(QUARTERS, qn)}
             hidden={legend.hidden}
             yMin={0.5}
@@ -438,11 +443,11 @@ function YieldView() {
       <table className="mi-table">
         <thead>
           <tr>
-            <th>Segment</th>
-            <th className="r">Prime yield Q4 2025</th>
-            <th className="r">12 mnd endring</th>
-            <th className="r">3 år endring</th>
-            <th className="r">Spread vs. 5 år SWAP</th>
+            <th>{t("yieldTableSegment")}</th>
+            <th className="r">{t("yieldTablePrimeYield")}</th>
+            <th className="r">{t("yieldTable12m")}</th>
+            <th className="r">{t("yieldTable3y")}</th>
+            <th className="r">{t("yieldTableSpread")}</th>
           </tr>
         </thead>
         <tbody>
@@ -466,12 +471,12 @@ function YieldView() {
                 <td className="r">{fmtNoComma(cur)} %</td>
                 <td className="r">
                   <span className={`ch ${d1y >= 0 ? "up" : "down"}`}>
-                    {d1y >= 0 ? "▲" : "▼"} {Math.abs(d1y)} bps
+                    {d1y >= 0 ? "▲" : "▼"} {t("yieldDeltaBps", { count: Math.abs(d1y) })}
                   </span>
                 </td>
                 <td className="r">
                   <span className={`ch ${d3y >= 0 ? "up" : "down"}`}>
-                    {d3y >= 0 ? "▲" : "▼"} {Math.abs(d3y)} bps
+                    {d3y >= 0 ? "▲" : "▼"} {t("yieldDeltaBps", { count: Math.abs(d3y) })}
                   </span>
                 </td>
                 <td className="r">{fmtNoComma(spread)} %</td>
@@ -484,43 +489,36 @@ function YieldView() {
 
       <div className="mi-footnote">
         <span className="source">
-          Prime yield reflekterer beste eiendom i sin klasse — sentrumsbygg med
-          solid leietakerportefølje og lang WAULT.
+          {t("yieldFootnote")}
         </span>
-        <span>Q4 2025</span>
+        <span>{t("yieldFootnoteQ")}</span>
       </div>
 
       <div className="mi-insights">
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 01</div>
-          <h3>Yield-toppen ligger bak oss.</h3>
+          <div className="ipre">{t("yieldInsight01Pre")}</div>
+          <h3>{t("yieldInsight01Title")}</h3>
           <p>
-            Prime yield på kontor stabiliserte seg gjennom 2024 og har korrigert
-            svakt ned i 2025 — i takt med fallende langrenter og økt
-            kjøpsappetitt.
+            {t("yieldInsight01Body")}
           </p>
         </div>
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 02</div>
-          <h3>Spread mot rente er sunn.</h3>
+          <div className="ipre">{t("yieldInsight02Pre")}</div>
+          <h3>{t("yieldInsight02Title")}</h3>
           <p>
-            Med 5-års SWAP rundt 3,8 % og prime yield rundt 6,1 % har
-            kontorsegmentet en spread på 230 bps — historisk akkurat hva markedet
-            krever for å være likvid.
+            {t("yieldInsight02Body")}
           </p>
         </div>
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 03</div>
-          <h3>Logistikk kommer ned først.</h3>
+          <div className="ipre">{t("yieldInsight03Pre")}</div>
+          <h3>{t("yieldInsight03Title")}</h3>
           <p>
-            Yield på logistikk er historisk høyt vs. kontor, men har gått hardest
-            gjennom syklusen. Vi forventer den første betydelige innstrammingen
-            her gjennom 2026.
+            {t("yieldInsight03Body")}
           </p>
         </div>
       </div>
 
-      <SeOgsa heading="Gå dypere" from="sektor-yield" links={GA_DYPERE_LINKS} />
+      <SeOgsa heading={t("gaDypereHeading")} from="sektor-yield" links={gaDypereLinks} />
     </div>
   )
 }
@@ -530,6 +528,8 @@ function YieldView() {
 // ════════════════════════════════════════════════════════════════════════
 
 function LeieView() {
+  const t = useTranslations("Markedsinnsikt.Shell")
+  const locale = useLocale()
   const [sub, setSub] = useState<Segment>("kontor")
   const [range, setRange] = useState<RangeId>("5y")
   const cityData = LEIE[sub]
@@ -540,6 +540,8 @@ function LeieView() {
   const prev = arr[arr.length - 5]
   const pct = ((cur - prev) / prev) * 100
 
+  const segLabel = sub === "kontor" ? t("segKontor") : sub === "handel" ? t("segHandel") : t("segLogistikk")
+
   const legendItems: LegendItem[] = cities.map((c, i) => ({
     key: c,
     label: c,
@@ -547,17 +549,22 @@ function LeieView() {
     dashed: i === 2,
   }))
   const legend = useSeriesToggle(cities)
-  const qn = RANGES.find((r) => r.id === range)?.quarters ?? 20
+  const qn = RANGE_IDS.find((r) => r.id === range)?.quarters ?? 20
+
+  const gaDypereLinks = GA_DYPERE_HREFS.map((href, i) => ({
+    href,
+    label: i === 0 ? t("gaDypereMarkedskart") : i === 1 ? t("gaDypereMarkedsrapport") : t("gaDyperePrimeYield"),
+  }))
 
   return (
     <div>
       <SectionHead
-        eyebrow="02 · Markedsleie"
-        source="Kilde: Advanti leiekontrakt­base"
+        eyebrow={t("leieEyebrow")}
+        source={t("leieSource")}
         heading={
           <>
-            Markedsleie per by,{" "}
-            <span className="italic">prime kvalitet.</span>
+            {t("leieHeading1")}{" "}
+            <span className="italic">{t("leieHeading2")}</span>
           </>
         }
       />
@@ -568,18 +575,18 @@ function LeieView() {
         <div className="mi-chart-head">
           <div>
             <h3>
-              Prime markedsleie {SEG_LABELS[sub]},{" "}
+              {t("leieChartTitle", { segment: segLabel })},{" "}
               <span className="city-name">{primeCity}</span>
             </h3>
             <div className="focus-val">
-              <span className="val-num">{fmtNum(cur)}</span>
-              <span className="unit">kr/m²/år</span>
+              <span className="val-num">{fmtNum(cur, locale)}</span>
+              <span className="unit">{t("leieUnit")}</span>
             </div>
             <div className="focus-delta delta-pct">
               <span className={pct >= 0 ? "up" : "down"}>
                 {pct >= 0 ? "▲" : "▼"} {pct.toFixed(1).replace(".", ",")} %
               </span>{" "}
-              YoY
+              {t("leieYoY")}
             </div>
           </div>
           <InteractiveLegend
@@ -591,7 +598,7 @@ function LeieView() {
         </div>
         <div className="miv-chart">
           <MarketLineChart
-            ariaLabel={`Prime markedsleie ${SEG_LABELS[sub]} per by, kvartalsvis 2021–2025`}
+            ariaLabel={t("leieAriaChart", { segment: segLabel })}
             labels={windowTail(QUARTERS, qn)}
             hidden={legend.hidden}
             yFormat={(v) => `${Math.round(v)} kr`}
@@ -609,10 +616,10 @@ function LeieView() {
       <table className="mi-table">
         <thead>
           <tr>
-            <th>By</th>
-            <th className="r">Markedsleie Q4 2025</th>
-            <th className="r">12 mnd vekst</th>
-            <th className="r">3 år vekst</th>
+            <th>{t("leieTableCity")}</th>
+            <th className="r">{t("leieTableRent")}</th>
+            <th className="r">{t("leieTable12m")}</th>
+            <th className="r">{t("leieTable3y")}</th>
           </tr>
         </thead>
         <tbody>
@@ -632,7 +639,7 @@ function LeieView() {
                   />
                   {c}
                 </td>
-                <td className="r">{fmtNum(curC)} kr/m²</td>
+                <td className="r">{fmtNum(curC, locale)} kr/m²</td>
                 <td className="r">
                   <span className={`ch ${d1y >= 0 ? "up" : "down"}`}>
                     {d1y >= 0 ? "▲" : "▼"}{" "}
@@ -653,42 +660,36 @@ function LeieView() {
 
       <div className="mi-footnote">
         <span className="source">
-          Markedsleie er prime — toppleie for nybygg/klasse A i sentrum. Reelle
-          gjennomsnittsleier ligger 10–25 % under.
+          {t("leieFootnote")}
         </span>
-        <span>Q4 2025</span>
+        <span>{t("leieFootnoteQ")}</span>
       </div>
 
       <div className="mi-insights">
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 01</div>
-          <h3>Tromsø trekker fra.</h3>
+          <div className="ipre">{t("leieInsight01Pre")}</div>
+          <h3>{t("leieInsight01Title")}</h3>
           <p>
-            Tromsø sentrum har hatt 38 % leievekst siden 2021, drevet av lav
-            nybygg­aktivitet og sterkt offentlig + privat leietaker­etterspørsel.
+            {t("leieInsight01Body")}
           </p>
         </div>
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 02</div>
-          <h3>Bodø følger på.</h3>
+          <div className="ipre">{t("leieInsight02Pre")}</div>
+          <h3>{t("leieInsight02Title")}</h3>
           <p>
-            Bodø følger Tromsø-trenden med 18 mnd forsinkelse. Vi ser betydelig
-            oppside i prime kontor­leie de neste 12 mnd, særlig i sentrum og nær
-            jernbanen.
+            {t("leieInsight02Body")}
           </p>
         </div>
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 03</div>
-          <h3>Indekseringen tar over.</h3>
+          <div className="ipre">{t("leieInsight03Pre")}</div>
+          <h3>{t("leieInsight03Title")}</h3>
           <p>
-            Den nominelle veksten i 2024–25 har vært drevet vel så mye av
-            indeksregulering som av markedsstyrke. Reell vekst forventes mer
-            moderat i 2026.
+            {t("leieInsight03Body")}
           </p>
         </div>
       </div>
 
-      <SeOgsa heading="Gå dypere" from="sektor-leie" links={GA_DYPERE_LINKS} />
+      <SeOgsa heading={t("gaDypereHeading")} from="sektor-leie" links={gaDypereLinks} />
     </div>
   )
 }
@@ -698,15 +699,20 @@ function LeieView() {
 // ════════════════════════════════════════════════════════════════════════
 
 function TxView() {
+  const t = useTranslations("Markedsinnsikt.Shell")
+  const gaDypereLinks = GA_DYPERE_HREFS.map((href, i) => ({
+    href,
+    label: i === 0 ? t("gaDypereMarkedskart") : i === 1 ? t("gaDypereMarkedsrapport") : t("gaDyperePrimeYield"),
+  }))
   return (
     <div>
       <SectionHead
-        eyebrow="03 · Transaksjoner"
-        source="Kilde: Advanti transaksjons­database"
+        eyebrow={t("txEyebrow")}
+        source={t("txSource")}
         heading={
           <>
-            Transaksjons­volum og{" "}
-            <span className="italic">utvalgte handler.</span>
+            {t("txHeading1")}{" "}
+            <span className="italic">{t("txHeading2")}</span>
           </>
         }
       />
@@ -714,14 +720,13 @@ function TxView() {
       <div className="mi-chart-card">
         <div className="mi-chart-head">
           <div>
-            <h3>Totalt transaksjonsvolum, Nord-Norge</h3>
+            <h3>{t("txChartTitle")}</h3>
             <div className="focus-val">
-              <span>4,8</span>
-              <span className="unit">mrd NOK · 2025</span>
+              <span>{t("txFocusVal")}</span>
+              <span className="unit">{t("txFocusUnit")}</span>
             </div>
             <div className="focus-delta">
-              <span className="up">▲ 18 %</span> mot 2024 · høyeste nivå siden
-              2022
+              <span className="up">{t("txFocusDelta")}</span>
             </div>
           </div>
           <div className="mi-chart-legend">
@@ -735,7 +740,7 @@ function TxView() {
                   borderRadius: 1,
                 }}
               />
-              Realisert 2025
+              {t("txLegend2025")}
             </span>
             <span className="item">
               <span
@@ -748,12 +753,12 @@ function TxView() {
                   borderRadius: 1,
                 }}
               />
-              Historisk
+              {t("txLegendHistorical")}
             </span>
           </div>
         </div>
         <MarketBarChart
-          ariaLabel="Totalt transaksjonsvolum i Nord-Norge per år, 2018–2025"
+          ariaLabel={t("txAriaChart")}
           labels={VOLUME.years}
           orientation="columns"
           highlightLast
@@ -769,33 +774,31 @@ function TxView() {
       </div>
 
       <h3 className="miv-subhead">
-        Utvalgte transaksjoner <span className="italic">2025.</span>
+        {t("txSubhead1")} <span className="italic">{t("txSubhead2")}</span>
       </h3>
       <div className="mi-tx-list">
-        {TX.map((t) => (
-          <div className="mi-tx" key={t.name}>
-            <div className="tx-date">{t.date}</div>
+        {TX.map((tx) => (
+          <div className="mi-tx" key={tx.name}>
+            <div className="tx-date">{tx.date}</div>
             <div>
-              <div className="tx-name">{t.name}</div>
-              <div className="tx-loc">{t.loc}</div>
+              <div className="tx-name">{tx.name}</div>
+              <div className="tx-loc">{tx.loc}</div>
             </div>
-            <div className="tx-segment">{t.seg}</div>
-            <div className="tx-value">{t.value}</div>
-            <div className="tx-yield">Yield {t.yield}</div>
+            <div className="tx-segment">{tx.seg}</div>
+            <div className="tx-value">{tx.value}</div>
+            <div className="tx-yield">{t("txYield")} {tx.yield}</div>
           </div>
         ))}
       </div>
 
       <div className="mi-footnote">
         <span className="source">
-          Listen viser et utvalg av transaksjoner Advanti har bekreftet via
-          tinglysing, kjøpekontrakt eller direkte fra part. Underlag er
-          kvalitetssikret.
+          {t("txFootnote")}
         </span>
-        <span>+47 transaksjoner sporet i 2025</span>
+        <span>{t("txFootnoteCount")}</span>
       </div>
 
-      <SeOgsa heading="Gå dypere" from="sektor-tx" links={GA_DYPERE_LINKS} />
+      <SeOgsa heading={t("gaDypereHeading")} from="sektor-tx" links={gaDypereLinks} />
     </div>
   )
 }
@@ -805,14 +808,19 @@ function TxView() {
 // ════════════════════════════════════════════════════════════════════════
 
 function LedighetView() {
+  const t = useTranslations("Markedsinnsikt.Shell")
+  const gaDypereLinks = GA_DYPERE_HREFS.map((href, i) => ({
+    href,
+    label: i === 0 ? t("gaDypereMarkedskart") : i === 1 ? t("gaDypereMarkedsrapport") : t("gaDyperePrimeYield"),
+  }))
   return (
     <div>
       <SectionHead
-        eyebrow="04 · Ledighet"
-        source="Kilde: Advanti markeds­telling"
+        eyebrow={t("ledighetEyebrow")}
+        source={t("ledighetSource")}
         heading={
           <>
-            Ledighet per by <span className="italic">og segment.</span>
+            {t("ledighetHeading1")} <span className="italic">{t("ledighetHeading2")}</span>
           </>
         }
       />
@@ -820,9 +828,9 @@ function LedighetView() {
       <div className="mi-chart-card">
         <div className="mi-chart-head">
           <div>
-            <h3>Andel ledig næringsareal — Q4 2025</h3>
+            <h3>{t("ledighetChartTitle")}</h3>
             <div className="focus-delta">
-              Lav ledighet &lt; 4 % indikerer et stramt marked.
+              {t("ledighetHint")}
             </div>
           </div>
           <div className="mi-chart-legend">
@@ -831,14 +839,14 @@ function LedighetView() {
                 className="swatch"
                 style={{ background: "var(--warm-grey)" }}
               />
-              Kontor
+              {t("segKontor")}
             </span>
             <span className="item">
               <span
                 className="swatch"
                 style={{ background: "var(--warm-grey-85)" }}
               />
-              Handel
+              {t("segHandel")}
             </span>
             <span className="item">
               <span
@@ -849,29 +857,29 @@ function LedighetView() {
                   border: "1px solid var(--warm-grey-75)",
                 }}
               />
-              Logistikk
+              {t("segLogistikk")}
             </span>
           </div>
         </div>
         <MarketBarChart
-          ariaLabel="Ledighet i prosent per by og segment, Q4 2025"
+          ariaLabel={t("ledighetAriaChart")}
           labels={VACANCY.map((r) => r.city)}
           orientation="rows"
           height={340}
           valueFormatter={fmtPct1}
           series={[
             {
-              name: "Kontor",
+              name: t("segKontor"),
               color: "var(--warm-grey)",
               values: VACANCY.map((r) => r.kontor),
             },
             {
-              name: "Handel",
+              name: t("segHandel"),
               color: "var(--warm-grey-85)",
               values: VACANCY.map((r) => r.handel),
             },
             {
-              name: "Logistikk",
+              name: t("segLogistikk"),
               color: "var(--accent)",
               values: VACANCY.map((r) => r.logistikk),
             },
@@ -880,10 +888,10 @@ function LedighetView() {
         <table className="mi-city-table" style={{ marginTop: 24 }}>
           <thead>
             <tr>
-              <th>By</th>
-              <th>Kontor</th>
-              <th>Handel</th>
-              <th>Logistikk</th>
+              <th>{t("leieTableCity")}</th>
+              <th>{t("segKontor")}</th>
+              <th>{t("segHandel")}</th>
+              <th>{t("segLogistikk")}</th>
             </tr>
           </thead>
           <tbody>
@@ -901,33 +909,29 @@ function LedighetView() {
 
       <div className="mi-insights">
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 01</div>
-          <h3>Tromsø er stramt.</h3>
+          <div className="ipre">{t("ledighetInsight01Pre")}</div>
+          <h3>{t("ledighetInsight01Title")}</h3>
           <p>
-            3,4 % kontorledighet i Tromsø er det laveste på fem år. Flere
-            offentlige leietakere har lenge utløst kontrakt og er på utkikk etter
-            klasse A-arealer.
+            {t("ledighetInsight01Body")}
           </p>
         </div>
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 02</div>
-          <h3>Narvik er fragmentert.</h3>
+          <div className="ipre">{t("ledighetInsight02Pre")}</div>
+          <h3>{t("ledighetInsight02Title")}</h3>
           <p>
-            7,5 % ledighet i Narvik gjenspeiler eldre bygningsmasse mer enn
-            manglende etterspørsel. Klasse A er fortsatt fullt utleid.
+            {t("ledighetInsight02Body")}
           </p>
         </div>
         <div className="mi-insight">
-          <div className="ipre">Tolkning · 03</div>
-          <h3>Logistikk holder seg lavt.</h3>
+          <div className="ipre">{t("ledighetInsight03Pre")}</div>
+          <h3>{t("ledighetInsight03Title")}</h3>
           <p>
-            Ledigheten i logistikk ligger gjennomgående lavt over alle byer —
-            drevet av sterk etterspørsel fra dagligvare, e-handel og industri.
+            {t("ledighetInsight03Body")}
           </p>
         </div>
       </div>
 
-      <SeOgsa heading="Gå dypere" from="sektor-ledighet" links={GA_DYPERE_LINKS} />
+      <SeOgsa heading={t("gaDypereHeading")} from="sektor-ledighet" links={gaDypereLinks} />
     </div>
   )
 }
@@ -937,17 +941,18 @@ function LedighetView() {
 // ════════════════════════════════════════════════════════════════════════
 
 function KartView() {
+  const t = useTranslations("Markedsinnsikt.Shell")
   const [cityId, setCityId] = useState("bodo")
   const city = CITIES.find((c) => c.id === cityId) ?? CITIES[1]
 
   return (
     <div>
       <SectionHead
-        eyebrow="05 · Markedskart"
-        source="Yield, leie og ledighet — Q4 2025"
+        eyebrow={t("kartEyebrow")}
+        source={t("kartSource")}
         heading={
           <>
-            By for by. <span className="italic">Klikk for detaljer.</span>
+            {t("kartHeading1")} <span className="italic">{t("kartHeading2")}</span>
           </>
         }
       />
@@ -963,7 +968,7 @@ function KartView() {
           </MapErrorBoundary>
         </div>
         <div className="mi-map-info">
-          <div className="mi-city-picker" role="group" aria-label="Velg by">
+          <div className="mi-city-picker" role="group" aria-label={t("kartAriaSelectCity")}>
             {CITIES.map((c) => (
               <button
                 key={c.id}
@@ -975,7 +980,7 @@ function KartView() {
               </button>
             ))}
           </div>
-          <div className="city-label">Marked · {city.name}</div>
+          <div className="city-label">{t("marketLabel", { city: city.name })}</div>
           <h3>{city.name}</h3>
           <div
             style={{
@@ -989,15 +994,15 @@ function KartView() {
             {city.note}
           </div>
           <div className="city-stat">
-            <span className="l">Prime yield kontor</span>
+            <span className="l">{t("statPrimeYield")}</span>
             <span className="v">{city.yield}</span>
           </div>
           <div className="city-stat">
-            <span className="l">Markedsleie kontor</span>
+            <span className="l">{t("statMarketRent")}</span>
             <span className="v">{city.leie}</span>
           </div>
           <div className="city-stat">
-            <span className="l">Kontorledighet</span>
+            <span className="l">{t("statVacancy")}</span>
             <span className="v">{city.vac}</span>
           </div>
           <div style={{ marginTop: 32 }}>
@@ -1006,7 +1011,7 @@ function KartView() {
               className="btn btn-outline"
               style={{ fontSize: 12, padding: "10px 18px" }}
             >
-              Få full rapport for {city.name} <span className="arrow">→</span>
+              {t("kartFullReport", { city: city.name })} <span className="arrow">→</span>
             </Link>
           </div>
         </div>
@@ -1014,14 +1019,13 @@ function KartView() {
 
       <div className="mi-footnote">
         <span className="source">
-          Kartet viser Advantis seks dekningsbyer i Nord-Norge. Klikk en by for
-          yield, leie og ledighet — alle tall per Q4 2025.
+          {t("kartFootnote")}
         </span>
         <Link
           href="/markedsinnsikt/kart"
           style={{ color: "var(--warm-grey)", borderBottom: "1px solid" }}
         >
-          Detaljert sonekart for Bodø →
+          {t("kartZoneLink")}
         </Link>
       </div>
     </div>
@@ -1032,71 +1036,35 @@ function KartView() {
 // VIEW: RAPPORTER
 // ════════════════════════════════════════════════════════════════════════
 
-const REPORTS = [
-  {
-    pre: "RAPPORT · 12. JAN 2026",
-    title: "Markedsrapport — Q4 2025",
-    body: "Yield, leie og volum. Full gjennomgang av kvartalet.",
-    foot: "PDF · 48 s",
-  },
-  {
-    pre: "ANALYSE · 18. NOV 2025",
-    title: "Logistikk Nord-Norge — kapasitetsbehov mot 2030",
-    body: "Industriutbygging og dagligvare­vekst. Hva betyr det for areal­behovet?",
-    foot: "PDF · 22 s",
-  },
-  {
-    pre: "RAPPORT · 14. OKT 2025",
-    title: "Markedsrapport — Q3 2025",
-    body: "Yield-toppen passert? Første tegn på nedgang i prime kontor.",
-    foot: "PDF · 44 s",
-  },
-  {
-    pre: "DYPDYKK · 04. SEP 2025",
-    title: "Kontorleie­markedet i Tromsø",
-    body: "Hvorfor leien har steget 38 % siden 2021 — og hvor mye videre vekst som er igjen.",
-    foot: "PDF · 18 s",
-  },
-  {
-    pre: "RAPPORT · 11. JUL 2025",
-    title: "Markedsrapport — Q2 2025",
-    body: "Transaksjonsvolumet tar seg opp. Yield stabiliseres på tvers av segmenter.",
-    foot: "PDF · 42 s",
-  },
-  {
-    pre: "DYPDYKK · 22. MAI 2025",
-    title: "Bodø som logistikkhubb",
-    body: "Befolkningsvekst, ny jernbane og industri — hva det betyr for næringseiendom.",
-    foot: "PDF · 16 s",
-  },
-]
+// Report keys — the actual text lives in Shell.reports.r1…r6 translations.
+const REPORT_KEYS = ["r1", "r2", "r3", "r4", "r5", "r6"] as const
 
 function RapporterView() {
+  const t = useTranslations("Markedsinnsikt.Shell")
+  const tReports = useTranslations("Markedsinnsikt.Shell.reports")
   return (
     <div>
       <SectionHead
-        eyebrow="06 · Rapporter & analyser"
-        source="Q4 2025 Marked Nord-Norge"
-        stamp="SISTE RAPPORT 12. JAN 2026"
+        eyebrow={t("rapporterEyebrow")}
+        source={t("rapporterSource")}
+        stamp={t("rapporterStamp")}
         heading={
           <>
-            Dypdykk i markedet,{" "}
-            <span className="italic">når du trenger det.</span>
+            {t("rapporterHeading1")}{" "}
+            <span className="italic">{t("rapporterHeading2")}</span>
           </>
         }
       />
 
       <div className="mi-report-card">
         <div>
-          <div className="pre">Hovedrapport · Q4 2025</div>
+          <div className="pre">{t("rapporterMainPre")}</div>
           <h3>
-            Markedsrapport Nord-Norge —{" "}
-            <span className="italic">Q4 2025.</span>
+            {t("rapporterMainTitle1")}{" "}
+            <span className="italic">{t("rapporterMainTitle2")}</span>
           </h3>
           <p>
-            Komplett gjennomgang av yield, markedsleie, transaksjons­volum og
-            ledighet på tvers av kontor, handel og logistikk — i alle de seks
-            byene vi dekker. 48 sider, full datapakke i Excel.
+            {t("rapporterMainBody")}
           </p>
           <div className="row" style={{ marginTop: 32 }}>
             <Link
@@ -1104,57 +1072,57 @@ function RapporterView() {
               className="btn btn-primary"
               onClick={() => trackEvent("rapport_bestill", { source: "hovedkort" })}
             >
-              Bestill rapport <span className="arrow">→</span>
+              {t("rapporterOrderReport")} <span className="arrow">→</span>
             </Link>
             <Link
               href="/markedsrapport"
               className="btn btn-ghost"
               onClick={() => trackEvent("rapport_bestill", { source: "sammendrag" })}
             >
-              Se sammendrag (6 sider)
+              {t("rapporterSeeSummary")}
             </Link>
           </div>
         </div>
         <div className="meta">
           <div>
-            <div className="key">Format</div>
-            <div className="val">PDF + Excel-datasett</div>
+            <div className="key">{t("rapporterMetaFormat")}</div>
+            <div className="val">{t("rapporterMetaFormatVal")}</div>
           </div>
           <div>
-            <div className="key">Omfang</div>
-            <div className="val">48 sider · 14 datatabeller</div>
+            <div className="key">{t("rapporterMetaScope")}</div>
+            <div className="val">{t("rapporterMetaScopeVal")}</div>
           </div>
           <div>
-            <div className="key">Tilgang</div>
-            <div className="val">Abonnement eller enkeltkjøp</div>
+            <div className="key">{t("rapporterMetaAccess")}</div>
+            <div className="val">{t("rapporterMetaAccessVal")}</div>
           </div>
           <div>
-            <div className="key">Neste utgave</div>
+            <div className="key">{t("rapporterMetaNext")}</div>
             <div className="val">{NEXT_RELEASE_DATE}</div>
           </div>
         </div>
       </div>
 
       <h3 className="miv-subhead">
-        Arkiv <span className="italic">— alle rapporter.</span>
+        {t("rapporterArchiveHead1")} <span className="italic">{t("rapporterArchiveHead2")}</span>
       </h3>
 
       <div className="mi-reports-grid">
-        {REPORTS.map((r) => (
-          <article className="mi-report" key={r.title}>
+        {REPORT_KEYS.map((rk) => (
+          <article className="mi-report" key={rk}>
             <div>
-              <div className="rpre">{r.pre}</div>
-              <h4>{r.title}</h4>
-              <p>{r.body}</p>
+              <div className="rpre">{tReports(`${rk}Pre`)}</div>
+              <h4>{tReports(`${rk}Title`)}</h4>
+              <p>{tReports(`${rk}Body`)}</p>
             </div>
             <div className="rfoot">
-              <span>{r.foot}</span>
+              <span>{tReports(`${rk}Foot`)}</span>
               {/* Arkivtilgang går via lead-gaten — aldri en død «Last ned»-span */}
               <Link
                 href="/markedsrapport"
                 onClick={() => trackEvent("rapport_bestill", { source: "arkiv" })}
               >
-                Få tilgang →
+                {t("rapporterGetAccess")}
               </Link>
             </div>
           </article>
@@ -1163,8 +1131,7 @@ function RapporterView() {
 
       <div className="mi-footnote" style={{ marginTop: 32 }}>
         <span className="source">
-          Arkivet inneholder kvartalsvise markedsrapporter og tematiske dypdykk.
-          Abonnement gir full tilgang inkludert underliggende datasett.
+          {t("rapporterFootnote")}
         </span>
         <span>
           <Link
@@ -1175,7 +1142,7 @@ function RapporterView() {
             }}
             onClick={() => trackEvent("rapport_bestill", { source: "abonnement" })}
           >
-            Snakk med oss om abonnement →
+            {t("rapporterSubscriptionLink")}
           </Link>
         </span>
       </div>
@@ -1188,13 +1155,30 @@ function RapporterView() {
 // ════════════════════════════════════════════════════════════════════════
 
 export function MarkedsinnsiktShell() {
+  const t = useTranslations("Markedsinnsikt.Shell")
   const [sector, setSector] = useState<SectorId>("yield")
+
+  // Sector labels keyed by id — from translations.
+  const sectorLabel = (id: SectorId): string => {
+    switch (id) {
+      case "yield": return t("sectorYieldLabel")
+      case "leie": return t("sectorLeieLabel")
+      case "tx": return t("sectorTxLabel")
+      case "ledighet": return t("sectorLedighetLabel")
+      case "kart": return t("sectorKartLabel")
+      case "rapporter": return t("sectorRapporterLabel")
+    }
+  }
+  const sectorPre = (id: SectorId): string => {
+    const idx = SECTOR_IDS.indexOf(id)
+    return String(idx + 1).padStart(2, "0")
+  }
 
   // Deep-linking: honour /markedsinnsikt#<sector> on load and on back/forward
   // navigation. The hash is kept in sync as the user switches sectors below.
   useEffect(() => {
     const isSector = (h: string): h is SectorId =>
-      SECTORS.some((s) => s.id === h)
+      SECTOR_IDS.includes(h as SectorId)
 
     const applyHash = () => {
       const hash = window.location.hash.slice(1)
@@ -1217,7 +1201,7 @@ export function MarkedsinnsiktShell() {
   // never a mid-view replay.
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
   const onTabKeyDown = (e: React.KeyboardEvent, i: number) => {
-    const last = SECTORS.length - 1
+    const last = SECTOR_IDS.length - 1
     let next = -1
     if (e.key === "ArrowDown" || e.key === "ArrowRight") next = i === last ? 0 : i + 1
     else if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = i === 0 ? last : i - 1
@@ -1225,18 +1209,18 @@ export function MarkedsinnsiktShell() {
     else if (e.key === "End") next = last
     else return
     e.preventDefault()
-    selectSector(SECTORS[next].id)
+    selectSector(SECTOR_IDS[next]!)
     tabRefs.current[next]?.focus()
   }
 
   return (
     <div className="mi-shell">
-      <aside className="mi-nav" role="tablist" aria-label="Sektorer">
+      <aside className="mi-nav" role="tablist" aria-label={t("ariaSectors")}>
         <div className="mi-nav-label" aria-hidden="true">
-          Sektor
+          {t("navLabel")}
         </div>
-        {SECTORS.map((s, i) => (
-          <Fragment key={s.id}>
+        {SECTOR_IDS.map((sId, i) => (
+          <Fragment key={sId}>
             {i === 4 && <div className="divider" aria-hidden="true" />}
             <button
               ref={(el) => {
@@ -1244,16 +1228,16 @@ export function MarkedsinnsiktShell() {
               }}
               type="button"
               role="tab"
-              id={`mi-tab-${s.id}`}
+              id={`mi-tab-${sId}`}
               aria-controls="mi-panel"
-              data-sector={s.id}
-              aria-selected={sector === s.id}
-              tabIndex={sector === s.id ? 0 : -1}
-              onClick={() => selectSector(s.id)}
+              data-sector={sId}
+              aria-selected={sector === sId}
+              tabIndex={sector === sId ? 0 : -1}
+              onClick={() => selectSector(sId)}
               onKeyDown={(e) => onTabKeyDown(e, i)}
             >
-              <span>{s.label}</span>
-              <span className="pre">{s.pre}</span>
+              <span>{sectorLabel(sId)}</span>
+              <span className="pre">{sectorPre(sId)}</span>
             </button>
           </Fragment>
         ))}
