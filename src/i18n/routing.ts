@@ -31,3 +31,15 @@ export const routing = defineRouting({
 // once components are migrated to next-intl).
 export const { Link, redirect, usePathname, useRouter, getPathname } =
   createNavigation(routing);
+
+/**
+ * Map a next-intl locale (`en` | `nl` | `no`) to the corresponding BCP-47 tag
+ * used by `Intl.NumberFormat` / `toLocaleString` / NumberFlow `locales`.
+ *
+ *  - `no` → `nb-NO` (Norwegian Bokmål)
+ *  - `nl` → `nl-NL` (Dutch)
+ *  - `en` → `en-US` (English, default)
+ */
+export function toIntlLocale(locale: string): string {
+  return locale === "no" ? "nb-NO" : locale === "nl" ? "nl-NL" : "en-US";
+}
